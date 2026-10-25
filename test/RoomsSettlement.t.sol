@@ -120,4 +120,26 @@ contract RoomsSettlementTest is SettlementTest {
         assertEq(inspect.rollover(1), 0);
         assertBacked(address(token));
     }
+
+    function testCachedZeroBeaconCompletesPublicSettlementWithoutProofOrDelivery() public {
+        uint256 id = open(1, 0, 50);
+        buy(id, bob, 1, 50);
+        Round memory before = inspect.roundState(id);
+        vm.warp(registry.roundTime(before.drandRound) + 1);
+        registry.cache(before.drandRound, bytes32(0));
+        registry.setBad(false, false, true);
+        token.setFail(true);
+        router.setReady(false);
+        bytes32 expected = keccak256(abi.encode(bytes32(0), block.chainid, diamond, id));
+        assertEq(settlement.settleRound(id, hex"bad0"), uint256(expected) % 2);
+        Round memory r = inspect.roundState(id);
+        assertEq(r.applicationSeed, expected);
+        assertEq(r.prizeRemaining, 50 ether);
+        assertEq(r.payoutPerTicket, 1 ether);
+        assertEq(inspect.credit(address(token), address(this)), 1.5 ether);
+        assertBacked(address(token));
+        vm.expectRevert(abi.encodeWithSelector(Errors.RoundNotReady.selector, id));
+        settlement.settleRound(id, bytes(""));
+        assertEq(inspect.roundState(id).prizeRemaining, 50 ether);
+    }
 }
