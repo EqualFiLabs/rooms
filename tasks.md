@@ -81,12 +81,12 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - Details: Credit Operator buckets by snapshotted integration/token, finalizer by caller/token, and treasury; debit receipts plus inherited pot from escrow; release pointer/count. Demonstrate a reverting token receiver or unavailable Router cannot block settlement, and repeated settlement cannot credit anything twice.
     - _Requirements: 4.5–4.6, 7.5, 7.8, 8.1–8.8, 13.1, 18.1–18.8, 20.4_
 
-- [ ] 7. Implement empty-room and rounding rollover through the same successor-pot path
+- [x] 7. Implement empty-room and rounding rollover through the same successor-pot path
   - [x] 7.1 Add empty-room settlement into configuration pending rollover.
     - New file: `test/RoomsRollover.t.sol`; modified settlement branches.
     - Details: Move the full own-plus-inherited player pot into pending storage and its per-token aggregate; create no claim or expiry deadline. Next opening consumes it exactly once. Cover repeated empty outcomes, two configurations sharing an asset without sharing pots, and cross-token separation. Fees and tips apply only to new receipts.
     - _Requirements: 8.5, 8.7, 9.1–9.8, 10.6, 12.6, 18.1–18.8_
-  - [ ] 7.2 Add populated-room per-ticket prize and remainder handling.
+  - [x] 7.2 Add populated-room per-ticket prize and remainder handling.
     - Modified files: settlement and rollover tests.
     - Details: Store per-ticket payout and remaining distributable liability, move only indivisible remainder to the same pending pot, set settlement-relative claim deadline. Cover a successor round holding prior rollover, dust-only outcomes, and the no-double-liability invariant for historical pot statistics. Pause/disable/removal can delay successor opening but cannot force settlement to fail or sweep the pot.
     - _Requirements: 9.1–9.8, 10.1–10.7, 12.1, 12.6, 15.3–15.5, 18.2–18.6_
