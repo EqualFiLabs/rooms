@@ -10,6 +10,7 @@ abstract contract ClaimsTest is SettlementTest {
         super.setUp();
         install(address(new ClaimsFacet()), one(ClaimsFacet.claimPrize.selector));
         claims = ClaimsFacet(diamond);
+        install(address(new ClaimsFacet()), one(ClaimsFacet.expirePrize.selector));
     }
 
     function fundedPrize() internal returns (uint256 id) {
