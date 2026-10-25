@@ -160,7 +160,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - Details: Independent review of Diamond selectors/storage, initialization/authority, randomness assumptions, ERC-20 admission, aggregate accounting, claim expiry, rollover, Router contribution, surplus, and pause semantics. Keep internal reports/findings outside version control; apply concrete fixes in narrow candidate changes, update specs, and repeat affected evidence before release. Label agent review separately from third-party assurance.
     - _Requirements: 1.1–1.6, 3.1–3.8, 6.1–6.7, 7.1–20.5, 21.5–21.7, 22.1–22.6_
 
-- [ ] 15. Prepare a Robinhood Testnet rehearsal without live execution
+- [x] 15. Prepare a Robinhood Testnet rehearsal without live execution
   - [x] 15.1 Write deployment and read-only provenance validators.
     - New implementation-stage files: `script/DeployRooms.s.sol`, lifecycle helpers, validators, and public-safe deployment manifests.
     - Details: Guard chain ID 46630 for the rehearsal, validate official current chain configuration and actual dependency code/identity, installed authority/timelock roles, approved assets, Router readiness, Registry target-client behavior, compiled bytecode and selector/layout manifests. Load private runtime configuration only from approved secret storage without logging it. No guessed addresses, credentials, hostnames, local paths, or raw private evidence in public materials.
@@ -168,7 +168,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
   - [x] 15.2 Provide runnable rehearsal orchestration and exercise it locally without signing.
     - Details: Exercise local orchestration and prepare the future live sequence; mark live signing, broadcasting and finalization unexecuted. A later separately authorized rehearsal uses a fresh Rooms Diamond, actual epoch-priced approved-token transfers, verified Registry and Router, concurrent configurations/assets, early sellout and unsold deadline cutoff, selected actual future Quicknet proof and cached reuse, successful claims and revenues, a failed delivery followed by retry, and progressive finalization on disposable testnet state. Observe original/selected targets and effective closes; only the prescribed exact-fill sellout may select its future target. Obtain/observe empty-room rollover honestly without outcome-driven target changes; deterministic local tests provide branch coverage if a live outcome is not obtained. Do not change or reuse a finalized Fiddy deployment as Rooms.
     - _Requirements: 1.2–1.4, 4.1–4.7, 6.1–6.7, 7.1–7.8, 9.1–9.8, 11.1–11.7, 13.1–17.5, 21.7, 22.2, 22.5–22.8_
-  - [ ] 15.3 Validate receipt/event/accounting evidence against explicit fixtures.
+  - [x] 15.3 Validate receipt/event/accounting evidence against explicit fixtures.
     - Details: Provide evidence validators exercised against fixtures; live evidence remains prepared but unexecuted. Reconcile receipts, events, target beacon, runtime hashes, configuration/integration versions, source ledgers, and balances for the exact candidate. Fixed 30-day expiry is proven locally with controlled time; a same-day rehearsal is not a live 30-day observation. Any later actual live expiry result is separate evidence. Do not shorten the constant or upgrade the clock rule to manufacture coverage.
     - _Requirements: 2.8, 12.1–12.7, 18.1–18.8, 21.7, 22.2–22.6_
 
