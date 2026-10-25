@@ -82,7 +82,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - _Requirements: 4.5–4.6, 7.5, 7.8, 8.1–8.8, 13.1, 18.1–18.8, 20.4_
 
 - [ ] 7. Implement empty-room and rounding rollover through the same successor-pot path
-  - [ ] 7.1 Add empty-room settlement into configuration pending rollover.
+  - [x] 7.1 Add empty-room settlement into configuration pending rollover.
     - New file: `test/RoomsRollover.t.sol`; modified settlement branches.
     - Details: Move the full own-plus-inherited player pot into pending storage and its per-token aggregate; create no claim or expiry deadline. Next opening consumes it exactly once. Cover repeated empty outcomes, two configurations sharing an asset without sharing pots, and cross-token separation. Fees and tips apply only to new receipts.
     - _Requirements: 8.5, 8.7, 9.1–9.8, 10.6, 12.6, 18.1–18.8_
