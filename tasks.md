@@ -21,7 +21,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - Details: Define explicit local test assets, prices, supplies, durations, delays, purchase limits, tip percentage and capacity, with 50/20/30 initial economics. Document the external timelock/guardian/treasury policy. Production addresses, prices, supplies and initial configurations remain unset; verification of actual external timelock roles/delay and license parameters remains a release gate. Fixed E1–E4 multipliers affect price only and all tickets have equal prize weight.
     - _Requirements: 2.1–2.8, 3.1–3.8, 6.6–6.7, 15.1–15.6, 16.1, 16.6–16.7, 21.5–21.6, 22.6_
 
-- [ ] 2. Establish the minimal Diamond and isolated storage
+- [x] 2. Establish the minimal Diamond and isolated storage
   - [x] 2.1 Add the implementation toolchain and pinned dependencies only after implementation is authorized.
     - New files: `foundry.toml`, dependency/remapping declarations, project CI workflow, and applicable license/provenance declarations.
     - Details: Match reference compiler conventions; preserve a narrow local test profile and explicit broader CI-owned gates. Do not add frontend, token/NFT contracts, a factory, or generic vault dependencies.
@@ -30,7 +30,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - New files: `src/RoomsDiamond.sol`, `src/libraries/LibDiamond.sol`, cut/loupe facets and interfaces, `src/shared/DiamondTypes.sol`, `src/shared/Types.sol`, `src/shared/Errors.sol`, `src/libraries/LibRoomsStorage.sol`.
     - Details: Preserve Fiddy selector dispatch, code checks, authority semantics, revert propagation, finalization latch, and native rejection. Use fresh Rooms application namespaces, uint256 amounts/ticket supply/totals, pending rollover per config, round/user/room counts, original deadline and selected targets, sellout/effective-close timestamps, independent claim markers, and expiry state. Do not import Fiddy's narrower capped-ticket arithmetic assumptions or legacy refund layout.
     - _Requirements: 1.1–1.6, 2.6–2.8, 5.2, 5.5, 10.7, 14.6–14.7, 16.2–16.5, 18.1–18.8_
-  - [ ] 2.3 Implement atomic one-time initialization and the shared guard.
+  - [x] 2.3 Implement atomic one-time initialization and the shared guard.
     - New files: `src/initializers/RoomsInit.sol`, `src/libraries/LibReentrancy.sol`, `test/RoomsDiamond.t.sol`, `test/RoomsInit.t.sol`.
     - Details: Authority-match validation, role checks, guard initialization, approved assets, initial integration/config snapshots, and events happen in the approved initial cut. Exercise the actual Diamond through add/replace/remove, rejected unauthorized cuts, initializer replay, a storage-preserving upgrade, finalization, and continued installed operation. Do not claim broad initialization confidence from direct facet-only calls.
     - _Requirements: 1.5–1.6, 16.1–16.7, 20.1–20.5, 22.2_
