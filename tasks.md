@@ -92,7 +92,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - _Requirements: 9.1–9.8, 10.1–10.7, 12.1, 12.6, 15.3–15.5, 18.2–18.6_
 
 - [ ] 8. Implement player claims, fixed expiry, and finalizer claims
-  - [ ] 8.1 Add one-shot pull prize claims.
+  - [x] 8.1 Add one-shot pull prize claims.
     - New files: `src/interfaces/IClaims.sol`, `src/facets/ClaimsFacet.sol`, `test/RoomsClaims.t.sol`.
     - Details: Caller authentication, immutable ticket history, independent consumption marker, fixed per-ticket multiplication, valid receiver, positive entitlement, round/aggregate decrement before SafeERC20 transfer. Verify split versus merged wallets and varied claim ordering produce identical aggregate payments, and failed/reentrant claims preserve retryability.
     - _Requirements: 5.7, 10.1–10.7, 11.1–11.5, 11.7, 18.1–18.8, 20.1–20.5_
