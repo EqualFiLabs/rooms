@@ -172,15 +172,15 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - Details: Provide evidence validators exercised against fixtures; live evidence remains prepared but unexecuted. Reconcile receipts, events, target beacon, runtime hashes, configuration/integration versions, source ledgers, and balances for the exact candidate. Fixed 30-day expiry is proven locally with controlled time; a same-day rehearsal is not a live 30-day observation. Any later actual live expiry result is separate evidence. Do not shorten the constant or upgrade the clock rule to manufacture coverage.
     - _Requirements: 2.8, 12.1–12.7, 18.1–18.8, 21.7, 22.2–22.6_
 
-- [ ] 16. Document operation and prepare the reviewable release handoff
+- [x] 16. Document operation and prepare the reviewable release handoff
   - [x] 16.1 Synchronize specifications and publishable protocol documentation.
     - Modified files: these three root documents; new implementation-stage accounting/randomness/governance/asset-policy/operator-integration/rehearsal documentation where required.
     - Details: Record final interfaces, storage/selector manifests, base prices and ticket supplies, four epoch price multipliers and rounding, maximum-payment protection, equal prize weight, sellout-or-deadline rules and target selection, current launch terms, the supported-token and alias assumptions, ordinary-native rejection, donations-to-treasury, simple per-config rollover including disabled-config inactivity, 30-day forfeiture, tip denominator, permissionless callers/incentives, and versioned integrations. Explain public holdings, the late-price premium without guaranteed elimination of dilution, supply races, repeated-empty economics, sequencer risk, upgrade authority, and code-versus-governance finalization. Provide direct-call ABI/commands without requiring a new frontend or private backend.
     - _Requirements: 1.6, 2.1–2.8, 3.5–3.8, 6.6–6.7, 8.8, 9.1–9.8, 12.1–12.7, 14.1–14.8, 15.1–17.5, 19.1–19.7, 21.1–21.7, 22.1–22.6_
-  - [ ] 16.2 Deliver candidate validation and governance handoff without automatic finalization or merging.
+  - [x] 16.2 Deliver candidate validation and governance handoff without automatic finalization or merging.
     - Details: Summarize exact source/runtime/config pins, exercised checks, high-level formal-evidence summary, and remaining limits. Publish feature-branch commits or open a PR only when authorized, leaving human integration untouched. Production deployment and eventual irreversible finalization each require explicit separate authority; do not schedule either because the checklist is complete. Finalization has no forced deadline.
     - _Requirements: 16.1–16.7, 21.5–21.7, 22.1–22.8_
 
-- [ ] 17. Final checkpoint - Verify complete behavior and passing release gates
+- [x] 17. Final checkpoint - Verify complete behavior and passing release gates
   - Details: Ensure every acceptance criterion has observable implementation and appropriate passing evidence, all applicable tests/gates pass for the exact candidate, and no source/test/documentation drift remains. State unexecuted target-chain or elapsed-time evidence honestly. Hand off the reviewable result; do not merge, deploy production, or finalize without the required separate authorization.
   - _Requirements: 1.1–22.8_
