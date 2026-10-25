@@ -50,7 +50,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - _Requirements: 4.3–4.4, 4.7, 13.6, 14.1, 15.1–15.6, 16.1–16.7, 17.1–17.5_
 
 - [ ] 4. Implement epoch-priced purchases and sellout-or-deadline commitments
-  - [ ] 4.1 Add the single-room counted purchase path.
+  - [x] 4.1 Add the single-room counted purchase path.
     - New files: `src/interfaces/IRooms.sol`, `src/facets/RoomsFacet.sol`, epoch/price helpers in `src/libraries/LibRoomsMath.sol`, `test/RoomsPurchases.t.sol`, reusable supported-token/integration setup.
     - Details: Validate round/room/quantity/limit/approval/pause and remaining supply. Derive epoch from the execution timestamp and original duration, round unit price upward before multiplying quantity, and enforce caller `maxPayment`. Record user and room counts, actual payment receipts, and escrow, then SafeERC20 transfer. Test E1–E4, exact epoch boundaries, durations not divisible by four, low-base-unit rounding, same-epoch purchase partitioning, prices beyond uint96, stale maximum payments, overbuy reverts without partial fills, and remaining-supply races. Repeated purchases and multiple-room holdings retain equal prize weight without individual ticket IDs or participant loops. Do not add per-wallet caps, transfers, switching, or batch-entry scope.
     - _Requirements: 2.7, 3.2–3.7, 4.7, 5.1–5.7, 6.4, 14.5, 20.1–20.5, 21.1–21.2_
