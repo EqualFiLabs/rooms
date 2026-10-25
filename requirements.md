@@ -6,7 +6,7 @@ Rooms is a standalone EqualFi Labs onchain game. Players buy tickets in a chosen
 
 The requested specification package consists of this document, [design.md](design.md), and [tasks.md](tasks.md), directly in the repository root. Requirement identifiers below are stable references; `8.3` means acceptance criterion 3 of Requirement 8.
 
-Implementation inputs and external-authority policy are recorded in [configuration](docs/configuration.md); exact source pins and notices are in [provenance](docs/provenance.md). Production values remain unset.
+Implementation inputs and external-authority policy are recorded in [configuration](docs/configuration.md); exact source pins and notices are in [provenance](docs/provenance.md). Production values remain unset. The implemented compiler is Solidity 0.8.33, Osaka, optimizer 200 runs, without global via-IR. [Protocol operation](docs/protocol.md), [acceptance evidence](docs/acceptance.md), and [handoff](docs/handoff.md) accompany the cumulative implementation. Target-chain execution remains prepared but unexecuted.
 
 ### Reference baseline and review status
 

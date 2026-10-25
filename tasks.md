@@ -173,7 +173,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - _Requirements: 2.8, 12.1–12.7, 18.1–18.8, 21.7, 22.2–22.6_
 
 - [ ] 16. Document operation and prepare the reviewable release handoff
-  - [ ] 16.1 Synchronize specifications and publishable protocol documentation.
+  - [x] 16.1 Synchronize specifications and publishable protocol documentation.
     - Modified files: these three root documents; new implementation-stage accounting/randomness/governance/asset-policy/operator-integration/rehearsal documentation where required.
     - Details: Record final interfaces, storage/selector manifests, base prices and ticket supplies, four epoch price multipliers and rounding, maximum-payment protection, equal prize weight, sellout-or-deadline rules and target selection, current launch terms, the supported-token and alias assumptions, ordinary-native rejection, donations-to-treasury, simple per-config rollover including disabled-config inactivity, 30-day forfeiture, tip denominator, permissionless callers/incentives, and versioned integrations. Explain public holdings, the late-price premium without guaranteed elimination of dilution, supply races, repeated-empty economics, sequencer risk, upgrade authority, and code-versus-governance finalization. Provide direct-call ABI/commands without requiring a new frontend or private backend.
     - _Requirements: 1.6, 2.1–2.8, 3.5–3.8, 6.6–6.7, 8.8, 9.1–9.8, 12.1–12.7, 14.1–14.8, 15.1–17.5, 19.1–19.7, 21.1–21.7, 22.1–22.6_
