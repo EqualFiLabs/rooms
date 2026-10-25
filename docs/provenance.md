@@ -12,7 +12,7 @@ The reviewed sources are immutable Git revisions, not floating branch names.
 
 Fiddy's Registry gitlink is `cdc760a9bf5bbbc1647d13e43b22858677dacad6`; Rooms deliberately uses the separately reviewed Registry revision above. The other three dependency pins match Fiddy's gitlinks. Registry itself pins the same forge-std revision.
 
-Rooms and Registry compile with Solidity 0.8.30, optimizer enabled at 200 runs, Osaka, without global via-IR. The pinned Router requires Solidity 0.8.33. Its real implementation must be built separately with its own compiler, then exercised through its ABI; it must not silently change the Rooms compiler or be represented by a mock in real-contract evidence.
+The accepted Rooms compiler is Solidity 0.8.33, optimizer enabled at 200 runs, Osaka, without global via-IR. This explicitly approved change from Fiddy's 0.8.30 baseline permits direct compilation of the pinned Router (which requires 0.8.33). Fiddy-derived files and copied Registry validation sources require explicit pragma adaptation; dependency revisions remain unchanged. Record any source adaptations with the real-contract evidence.
 
 Fiddy Solidity carries BUSL-1.1 notices and supplies no repository-level license parameters at this revision. Preserve those notices and identify copied infrastructure explicitly. Do not infer a permissive license or invent missing licensor parameters. Publication of this derivative is authorized by the repository owner; this delivery grants no additional production-use rights in upstream material. Production release must resolve any missing upstream license parameters with the rights holder.
 

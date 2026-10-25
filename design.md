@@ -674,7 +674,7 @@ No EqualFi-owned keeper is a correctness dependency. A UI/keeper may improve con
 
 ## Testing Strategy
 
-This is a specification validation plan, not a claim that tests already exist or passed. Proposed compiler baseline matches inspected Fiddy: Solidity 0.8.30, optimizer 200 runs, Osaka, unless target validation requires an explicitly reviewed change. Dependency revisions and preserved notices are recorded in the implementation provenance.
+This is a specification validation plan, not a claim that tests already exist or passed. The accepted compiler is Solidity 0.8.33, optimizer 200 runs, Osaka, without global via-IR. This explicitly approved change from Fiddy's 0.8.30 baseline accommodates the pinned Router. Dependency revisions and preserved notices are recorded in the implementation provenance.
 
 | Proposed test file/category | Consumer-visible coverage | Requirements |
 |---|---|---|

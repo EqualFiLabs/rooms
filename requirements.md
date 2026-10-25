@@ -6,6 +6,8 @@ Rooms is a standalone EqualFi Labs onchain game. Players buy tickets in a chosen
 
 The requested specification package consists of this document, [design.md](design.md), and [tasks.md](tasks.md), directly in the repository root. Requirement identifiers below are stable references; `8.3` means acceptance criterion 3 of Requirement 8.
 
+Implementation inputs and external-authority policy are recorded in [configuration](docs/configuration.md); exact source pins and notices are in [provenance](docs/provenance.md). Production values remain unset.
+
 ### Reference baseline and review status
 
 - Fiddy: [`EqualFiLabs/fiddy`](https://github.com/EqualFiLabs/fiddy/tree/795425ef6a8830278b56b9052aa2271e92930eb3), merged `main` including PR #22.
@@ -349,5 +351,5 @@ The requested specification package consists of this document, [design.md](desig
 4. Formal work, if undertaken, SHALL use the approved remote verification environment rather than run local prover workloads; authoritative results and internal review materials SHALL remain outside public version control, with only appropriate summaries included.
 5. The release plan SHALL require concrete target-client/Registry integration evidence and a fresh authorized Robinhood Testnet lifecycle using an actual committed Quicknet beacon, not only mocked randomness.
 6. Compiler/settings, dependency/source pins, chain IDs, addresses, selectors, configuration inputs, and runtime hashes SHALL be recorded and validated for an implementation release without publishing credentials, private endpoints, machine names, or local filesystem paths.
-7. This specification phase SHALL create requirements, design, and tasks only; it SHALL NOT implement contracts, install project dependencies, deploy, or broadcast transactions.
-8. Implementation, commits, publication, deployment, and code finalization SHALL remain distinct authorization boundaries; this task list SHALL NOT authorize an automated merge or default-branch write.
+7. This implementation delivery SHALL produce sixteen incremental feature-branch PRs, with subtask commit slices and the final checkpoint in PR 16. It SHALL prepare and locally exercise rehearsal tooling without live signing, deployment, broadcasting, or finalization.
+8. Implementation, commits and feature-branch publication are authorized for this delivery. Deployment and code finalization remain separate authorization boundaries. The sole default-branch write is the authorized README-only root commit; no PR may be merged automatically.
