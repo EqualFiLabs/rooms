@@ -110,7 +110,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
   - _Requirements: 7.1–12.7, 18.1–18.8, 20.1–20.5, 22.2–22.3_
 
 - [ ] 10. Implement Operator and treasury delivery, donation reconciliation, and forced-native recovery
-  - [ ] 10.1 Add snapshotted Router contributions and retry semantics.
+  - [x] 10.1 Add snapshotted Router contributions and retry semantics.
     - New files: `src/interfaces/IRevenue.sol`, `src/interfaces/IOperatorFeeRouter.sol`, `src/libraries/LibOperatorFeeRouter.sol`, `src/facets/RevenueFacet.sol`, `test/RoomsRevenue.t.sol`.
     - Details: Preserve Fiddy readiness and exact-sized-then-zero allowance pattern, no transfer-delta accommodation. Integrate the actual Router implementation in local integration tests; use failing mocks only for narrow branches. Prove failed funding preserves the version/token bucket, later successful funding uses the same asset, and current integration changes cannot reroute the bucket.
     - _Requirements: 3.4–3.7, 13.1–13.7, 17.1–17.5, 18.1–18.8, 20.1–20.5_
