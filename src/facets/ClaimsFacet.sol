@@ -52,6 +52,25 @@ contract ClaimsFacet is IClaims, Guarded {
         emit PrizeExpired(id, r.config.paymentToken, amount);
     }
 
+    event FinalizerTipsClaimed(
+        address indexed asset, address indexed finalizer, address indexed receiver, uint256 amount
+    );
+
+    function claimFinalizerTips(address asset, address receiver)
+        external
+        nonReentrant
+        returns (uint256 amount)
+    {
+        _receiver(receiver);
+        S.AccountingStorage storage a = S.accountingStorage();
+        amount = a.finalizerCredits[asset][msg.sender];
+        if (amount == 0) revert Errors.NoFinalizerCredit();
+        a.finalizerCredits[asset][msg.sender] = 0;
+        a.assets[asset].finalizerLiability -= amount;
+        emit FinalizerTipsClaimed(asset, msg.sender, receiver, amount);
+        IERC20(asset).safeTransfer(receiver, amount);
+    }
+
     function _receiver(address receiver) private view {
         if (receiver == address(0) || receiver == address(this)) revert Errors.InvalidAddress();
     }

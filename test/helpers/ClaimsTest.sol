@@ -10,6 +10,7 @@ abstract contract ClaimsTest is SettlementTest {
         super.setUp();
         install(address(new ClaimsFacet()), one(ClaimsFacet.claimPrize.selector));
         claims = ClaimsFacet(diamond);
+        install(address(new ClaimsFacet()), one(ClaimsFacet.claimFinalizerTips.selector));
         install(address(new ClaimsFacet()), one(ClaimsFacet.expirePrize.selector));
     }
 

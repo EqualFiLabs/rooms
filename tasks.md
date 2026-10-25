@@ -91,7 +91,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - Details: Store per-ticket payout and remaining distributable liability, move only indivisible remainder to the same pending pot, set settlement-relative claim deadline. Cover a successor round holding prior rollover, dust-only outcomes, and the no-double-liability invariant for historical pot statistics. Pause/disable/removal can delay successor opening but cannot force settlement to fail or sweep the pot.
     - _Requirements: 9.1–9.8, 10.1–10.7, 12.1, 12.6, 15.3–15.5, 18.2–18.6_
 
-- [ ] 8. Implement player claims, fixed expiry, and finalizer claims
+- [x] 8. Implement player claims, fixed expiry, and finalizer claims
   - [x] 8.1 Add one-shot pull prize claims.
     - New files: `src/interfaces/IClaims.sol`, `src/facets/ClaimsFacet.sol`, `test/RoomsClaims.t.sol`.
     - Details: Caller authentication, immutable ticket history, independent consumption marker, fixed per-ticket multiplication, valid receiver, positive entitlement, round/aggregate decrement before SafeERC20 transfer. Verify split versus merged wallets and varied claim ordering produce identical aggregate payments, and failed/reentrant claims preserve retryability.
@@ -100,7 +100,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - New file: `test/RoomsExpiry.t.sol`; modified ClaimsFacet and round accounting.
     - Details: Fixed `settledAt + 30 days`; claim accepted immediately before and rejected exactly at/after deadline whether or not expiry ran. Expiry moves only remaining player prizes to treasury once, without user iteration or token transfer. Test partial/all/zero claims, repeat calls, empty-room exclusion, delayed settlement, lazy-expiry surplus safety, and pause/asset-removal independence.
     - _Requirements: 2.8, 9.4, 10.6, 11.1, 12.1–12.7, 14.4, 15.3–15.4, 18.1–18.8_
-  - [ ] 8.3 Add per-token finalizer credit claims.
+  - [x] 8.3 Add per-token finalizer credit claims.
     - Modified files: ClaimsFacet, source ledgers, and claims tests.
     - Details: Aggregate settled rewards per finalizer/token; caller-selected valid receiver, consume before transfer, full rollback on failure, no player expiry treatment. Verify removed tokens and paused state do not block delivery, and unrelated assets/rounds remain independent.
     - _Requirements: 8.3–8.5, 8.8, 11.6–11.7, 12.6, 18.5–18.8, 20.1–20.5_
