@@ -18,7 +18,8 @@ contract PurchaseHarness is Guarded {
     }
 
     function purchase(uint8 room, uint256 quantity, uint256 maximum) external nonReentrant {
-        LibRoomsPurchase.record(1, room, quantity, maximum);
+        uint256 payment = LibRoomsPurchase.record(1, room, quantity, maximum);
+        LibRoomsPurchase.collect(1, payment);
     }
 }
 

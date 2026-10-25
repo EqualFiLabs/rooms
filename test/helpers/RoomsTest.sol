@@ -22,6 +22,7 @@ contract TestToken is ERC20 {
     address public callback;
     bytes public callbackData;
     bool public callbackSucceeded;
+    bytes public callbackResult;
     constructor() ERC20("Test asset", "TEST") { }
 
     function mint(address to, uint256 amount) external {
@@ -40,7 +41,7 @@ contract TestToken is ERC20 {
     function _update(address from, address to, uint256 amount) internal override {
         require(!fail, "transfer disabled");
         if (callback != address(0) && from != address(0)) {
-            (callbackSucceeded,) = callback.call(callbackData);
+            (callbackSucceeded, callbackResult) = callback.call(callbackData);
         }
         super._update(from, to, amount);
     }

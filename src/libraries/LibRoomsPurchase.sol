@@ -21,7 +21,10 @@ library LibRoomsPurchase {
     );
 
     /// @dev Internal purchase component. The complete public caller also commits exact-fill sellout.
-    function record(uint256 id, uint8 room, uint256 quantity, uint256 maximum) internal {
+    function record(uint256 id, uint8 room, uint256 quantity, uint256 maximum)
+        internal
+        returns (uint256 payment)
+    {
         S.GameStorage storage g = S.gameStorage();
         Round storage r = g.rounds[id];
         if (r.status == RoundStatus.None) revert Errors.RoundNotFound(id);
@@ -41,7 +44,7 @@ library LibRoomsPurchase {
         if (quantity > remaining) revert Errors.InsufficientSupply(quantity, remaining);
         uint8 e = M.epoch(block.timestamp - r.openedAt, r.config.salesDuration);
         uint256 unit = M.unitPrice(r.config.baseTicketPrice, e);
-        uint256 payment = unit * quantity;
+        payment = unit * quantity;
         if (payment > maximum) revert Errors.MaximumPaymentExceeded(payment, maximum);
         r.totalTickets += quantity;
         r.receipts += payment;
@@ -51,6 +54,10 @@ library LibRoomsPurchase {
         emit TicketsPurchased(
             id, msg.sender, room, quantity, e, unit, payment, remaining - quantity
         );
-        IERC20(r.config.paymentToken).safeTransferFrom(msg.sender, address(this), payment);
+    }
+
+    function collect(uint256 id, uint256 payment) internal {
+        address asset = S.gameStorage().rounds[id].config.paymentToken;
+        IERC20(asset).safeTransferFrom(msg.sender, address(this), payment);
     }
 }

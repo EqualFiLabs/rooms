@@ -21,7 +21,8 @@ contract OpeningHarness is Guarded {
         returns (uint256 id)
     {
         id = LibRoomsOpening.reserve(v);
-        LibRoomsPurchase.record(id, room, q, max);
+        uint256 payment = LibRoomsPurchase.record(id, room, q, max);
+        LibRoomsPurchase.collect(id, payment);
     }
 
     function seedPot(uint64 v, uint256 amount) external {
