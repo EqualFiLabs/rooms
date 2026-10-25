@@ -3,3 +3,4 @@ cache/
 broadcast/
 coverage/
 .env
+test/generated/

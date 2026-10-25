@@ -134,7 +134,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - _Requirements: 5.6, 8.1–8.8, 9.1–9.5, 19.4–19.7, 21.1–21.4, 22.2_
 
 - [ ] 12. Prove complete local lifecycle and stateful accounting behavior
-  - [ ] 12.1 Build actual-Diamond, supported-token, Registry, and Router integration scenarios.
+  - [x] 12.1 Build actual-Diamond, supported-token, Registry, and Router integration scenarios.
     - New file: `test/RoomsEndToEnd.t.sol`; reusable integration setup supporting actual Router and real Registry vectors where applicable.
     - Details: Trace mixed-epoch entries to early sellout and unsold deadline settlement, populated/empty successor pots, all delivery paths, claim expiry, pause/removal, config/integration changes, shared-token configurations, different tokens, and post-finalization continued play. Include a first-purchase sellout and a final-purchase failure/retry with unchanged pre-failure target and accounting. Mocked chosen-room scenarios remain separately labeled; no synthetic balance injection or direct storage patching in consumer lifecycle proof.
     - _Requirements: 1.1–1.6, 3.1–3.8, 4.1–4.7, 7.1–17.5, 18.1–18.8, 20.1–20.5, 21.7, 22.2–22.3_

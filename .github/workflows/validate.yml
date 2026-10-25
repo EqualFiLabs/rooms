@@ -15,6 +15,7 @@ jobs:
       - uses: foundry-rs/foundry-toolchain@v1
         with:
           version: nightly
+      - run: python3 tools/prepare_registry.py
       - run: forge fmt --check
       - run: forge build --sizes
       - run: forge test
