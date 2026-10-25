@@ -68,4 +68,15 @@ contract RevenueFacet is IRevenue, Guarded {
         S.accountingStorage().assets[asset].treasuryAvailable += amount;
         emit TokenSurplusAbsorbed(asset, amount);
     }
+    event NativeSurplusFlushed(address indexed receiver, uint256 amount);
+
+    function flushNativeSurplus() external nonReentrant returns (uint256 amount) {
+        amount = address(this).balance;
+        if (amount == 0) revert Errors.NoNativeSurplus();
+        address receiver = S.governanceStorage().treasuryRecipient;
+        if (receiver == address(0) || receiver == address(this)) revert Errors.InvalidAddress();
+        emit NativeSurplusFlushed(receiver, amount);
+        (bool ok,) = receiver.call{ value: amount }("");
+        if (!ok) revert Errors.NativeTransferFailed();
+    }
 }
