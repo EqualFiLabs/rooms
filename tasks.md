@@ -161,7 +161,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - _Requirements: 1.1–1.6, 3.1–3.8, 6.1–6.7, 7.1–20.5, 21.5–21.7, 22.1–22.6_
 
 - [ ] 15. Prepare a Robinhood Testnet rehearsal without live execution
-  - [ ] 15.1 Write deployment and read-only provenance validators.
+  - [x] 15.1 Write deployment and read-only provenance validators.
     - New implementation-stage files: `script/DeployRooms.s.sol`, lifecycle helpers, validators, and public-safe deployment manifests.
     - Details: Guard chain ID 46630 for the rehearsal, validate official current chain configuration and actual dependency code/identity, installed authority/timelock roles, approved assets, Router readiness, Registry target-client behavior, compiled bytecode and selector/layout manifests. Load private runtime configuration only from approved secret storage without logging it. No guessed addresses, credentials, hostnames, local paths, or raw private evidence in public materials.
     - _Requirements: 1.6, 3.6, 6.6–6.7, 13.3, 16.1, 16.6, 17.1–17.5, 21.5–21.7, 22.5–22.6, 22.8_

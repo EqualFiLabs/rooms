@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "chainId": 46630,
+  "manifestDigest": null,
+  "authority": null,
+  "guardian": null,
+  "treasuryRecipient": null,
+  "maxActiveRounds": null,
+  "assets": null,
+  "configs": null,
+  "registry": null,
+  "router": null,
+  "deployed": null
+}
