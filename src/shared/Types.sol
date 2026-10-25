@@ -64,3 +64,12 @@ struct AssetAccounting {
     uint256 pendingOperatorRevenueTotal;
     uint256 treasuryAvailable;
 }
+
+/// @dev New-receipt allocations; inherited funds are excluded from all fees.
+struct Allocations {
+    uint256 pot;
+    uint256 operatorRevenue;
+    uint256 treasuryGross;
+    uint256 finalizerTip;
+    uint256 treasuryNet;
+}

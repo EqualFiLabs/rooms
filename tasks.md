@@ -68,7 +68,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
   - _Requirements: 1.1–6.7, 15.1–17.5, 18.1–18.8, 20.1–20.5, 22.1–22.3_
 
 - [ ] 6. Implement allocation math and exact-beacon settlement
-  - [ ] 6.1 Implement full-width allocation and deterministic per-ticket math.
+  - [x] 6.1 Implement full-width allocation and deterministic per-ticket math.
     - Modified file: `src/libraries/LibRoomsMath.sol`; new arithmetic fuzz coverage.
     - Details: Implement shared epoch selection and ceiling-rounded unit-price math for purchases/quotes/previews. Compute player and Operator floors from actual aggregate epoch-priced gross, complement treasury, calculate treasury-funded percentage reward, and split player pot into distributable and remainder. Cover non-divisible-duration epoch boundaries, coarse-unit prices, same-epoch purchase partitioning, equal prize weight across epochs, tiny/zero rounded allocations, large representable receipts, high valid BPS, positive treasury retention, and arbitrary wallet partitions. Do not reuse Fiddy's capped uint128/unchecked allocation helper unchanged.
     - _Requirements: 2.3–2.4, 5.1–5.7, 8.1–8.8, 10.1–10.6, 18.1–18.8_
