@@ -123,12 +123,12 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - Details: Both receive and value-bearing fallback revert. Force native value using a purpose-built local helper and prove treasury-only recovery with no ERC-20 ledger change; preserve balance on failed native delivery. No wrapper, native entrypoint, or ordinary donation receive path.
     - _Requirements: 14.6–14.8, 18.7–18.8, 20.1–20.5_
 
-- [ ] 11. Implement public economic views and reconstruction events
+- [x] 11. Implement public economic views and reconstruction events
   - [x] 11.1 Add bounded occupancy, entitlements, state, and accounting views.
     - New files: `src/interfaces/IRoomsView.sol`, `src/facets/RoomsViewFacet.sol`, `test/RoomsViews.t.sol`.
     - Details: All proposed views in design.md, including derived Locked and stored SoldOut phases, base/epoch prices, multiplier, supply/remaining tickets, purchase quotes, original/selected targets, sellout/effective close, active pointers, old/new approval status, source liabilities, pending pot, claim deadline, current/expired/consumed entitlement, exact room/user totals, and balance versus accounted total. Preserve user ticket history after claims. No privileged API, wallet-only reads, or participant enumeration.
     - _Requirements: 3.4, 4.6, 10.7, 12.2, 14.2–14.4, 15.6, 19.1–19.3, 19.6–19.7_
-  - [ ] 11.2 Add conditional payout previews and economically reconstructable events.
+  - [x] 11.2 Add conditional payout previews and economically reconstructable events.
     - Modified files: interfaces/facets and view/lifecycle tests.
     - Details: Preview includes the hypothetical current-epoch payment in gross and ticket quantity in room totals, not inherited rollover as fee base. Reject positive proposed additions after either cutoff or above supply/quantity limit; permit zero-addition existing-pot previews while unsettled. Emit epoch/unit price/payment, remaining supply, close reason, and original/selected beacon facts from design.md without one event per individual ticket. Test quote/preview boundaries against actual purchases, execution in a later epoch with maximum-payment protection, and equal settled entitlements for equal ticket holdings bought in different epochs; do not add tests that merely assert getters echo storage or event wiring matches source text.
     - _Requirements: 5.6, 8.1–8.8, 9.1–9.5, 19.4–19.7, 21.1–21.4, 22.2_
