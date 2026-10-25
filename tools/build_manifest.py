@@ -2,6 +2,7 @@
 """Emit deterministic compiler, dependency, selector and runtime provenance."""
 from pathlib import Path
 import hashlib
+import os
 import json
 import re
 import subprocess
@@ -15,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PINS = {'forge-std': 'bf647bd6046f2f7da30d0c2bf435e5c76a780c1b', 'openzeppelin-contracts': '5fd1781b1454fd1ef8e722282f86f9293cacf256', 'drand-registry': '118a94d2e447055d1a47d1a13488e887aaa4a822', 'operator-fee-router': 'a6afe541c6261f1febb2eaf0f4d68ef5aa16548e'}
 
 def command(*args):
-    return subprocess.check_output(args, cwd=ROOT, text=True).strip()
+    return subprocess.check_output(args, cwd=ROOT, text=True, env=dict(os.environ, FOUNDRY_DISABLE_NIGHTLY_WARNING='1')).strip()
 
 def build():
     config = tomllib.loads((ROOT / 'foundry.toml').read_text())['profile']['default']
