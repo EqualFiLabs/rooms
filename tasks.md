@@ -152,7 +152,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
   - _Requirements: 1.1–22.8_
 
 - [ ] 14. Complete bounded formal work and independent review before release
-  - [ ] 14.1 Define meaningful proof targets and execute only in the approved remote environment.
+  - [x] 14.1 Define meaningful proof targets and execute only in the approved remote environment.
     - Local-only implementation-stage artifacts: formal harnesses, proof specifications, and durable raw outputs outside version control; only an appropriate high-level summary belongs in version control.
     - Details: Epoch-price and supply bounds, same-epoch purchase partition neutrality, allocation conservation from actual receipts, positive treasury, prescribed one-shot sellout selection, populated/empty rollover, pending attachment, one-shot claims/expiry, per-asset non-mutation, and initialization/finalization boundaries. Bind proof inputs to actual source, compiler/settings, runtime hashes, documented token/Registry/Router models, explicit bounds, and sanity witnesses. Do not probe or invoke local Halmos/Certora, or claim timeout/unknown/vacuity as a pass. Read the current approved execution instructions before starting remote work.
     - _Requirements: 8.6, 9.1–9.8, 10.1–10.7, 12.1–12.7, 16.1–16.7, 18.1–18.8, 21.6–21.7, 22.3–22.4, 22.6_
