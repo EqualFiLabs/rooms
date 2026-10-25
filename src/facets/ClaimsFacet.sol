@@ -38,6 +38,20 @@ contract ClaimsFacet is IClaims, Guarded {
         IERC20(r.config.paymentToken).safeTransfer(receiver, amount);
     }
 
+    event PrizeExpired(uint256 indexed roundId, address indexed asset, uint256 amount);
+
+    function expirePrize(uint256 id) external nonReentrant returns (uint256 amount) {
+        Round storage r = _settledPopulated(id);
+        if (block.timestamp < r.claimDeadline) revert Errors.PrizeNotExpired();
+        if (r.prizeExpired) revert Errors.PrizeAlreadyExpired();
+        r.prizeExpired = true;
+        amount = r.prizeRemaining;
+        r.prizeRemaining = 0;
+        S.accountingStorage().assets[r.config.paymentToken].prizeLiability -= amount;
+        S.accountingStorage().assets[r.config.paymentToken].treasuryAvailable += amount;
+        emit PrizeExpired(id, r.config.paymentToken, amount);
+    }
+
     function _receiver(address receiver) private view {
         if (receiver == address(0) || receiver == address(this)) revert Errors.InvalidAddress();
     }

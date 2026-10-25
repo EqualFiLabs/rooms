@@ -96,7 +96,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - New files: `src/interfaces/IClaims.sol`, `src/facets/ClaimsFacet.sol`, `test/RoomsClaims.t.sol`.
     - Details: Caller authentication, immutable ticket history, independent consumption marker, fixed per-ticket multiplication, valid receiver, positive entitlement, round/aggregate decrement before SafeERC20 transfer. Verify split versus merged wallets and varied claim ordering produce identical aggregate payments, and failed/reentrant claims preserve retryability.
     - _Requirements: 5.7, 10.1–10.7, 11.1–11.5, 11.7, 18.1–18.8, 20.1–20.5_
-  - [ ] 8.2 Add permissionless 30-day expiry reclassification.
+  - [x] 8.2 Add permissionless 30-day expiry reclassification.
     - New file: `test/RoomsExpiry.t.sol`; modified ClaimsFacet and round accounting.
     - Details: Fixed `settledAt + 30 days`; claim accepted immediately before and rejected exactly at/after deadline whether or not expiry ran. Expiry moves only remaining player prizes to treasury once, without user iteration or token transfer. Test partial/all/zero claims, repeat calls, empty-room exclusion, delayed settlement, lazy-expiry surplus safety, and pause/asset-removal independence.
     - _Requirements: 2.8, 9.4, 10.6, 11.1, 12.1–12.7, 14.4, 15.3–15.4, 18.1–18.8_
