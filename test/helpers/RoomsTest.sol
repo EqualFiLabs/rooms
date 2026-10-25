@@ -86,6 +86,7 @@ contract MockRegistry {
 contract MockRouter {
     bool public ready = true;
     uint256 public totalAdded;
+    uint256 public lastAllowance;
 
     function setReady(bool value) external {
         ready = value;
@@ -109,6 +110,7 @@ contract MockRouter {
 
     function addRewards(address asset, uint256 amount) external {
         require(ready, "not ready");
+        lastAllowance = IERC20(asset).allowance(msg.sender, address(this));
         require(IERC20(asset).transferFrom(msg.sender, address(this), amount));
         totalAdded += amount;
     }
