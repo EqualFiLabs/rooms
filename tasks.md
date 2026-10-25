@@ -105,7 +105,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - Details: Aggregate settled rewards per finalizer/token; caller-selected valid receiver, consume before transfer, full rollback on failure, no player expiry treatment. Verify removed tokens and paused state do not block delivery, and unrelated assets/rounds remain independent.
     - _Requirements: 8.3–8.5, 8.8, 11.6–11.7, 12.6, 18.5–18.8, 20.1–20.5_
 
-- [ ] 9. Checkpoint - Verify all settlement, rollover, and prize transitions
+- [x] 9. Checkpoint - Verify all settlement, rollover, and prize transitions
   - Details: Run focused settlement/rollover/claims/expiry arithmetic and lifecycle tests. Execute a full local funded round, a deterministic empty-room successor chain, a populated successor with inherited pot, and a partially claimed round expired at the true fixed boundary. Reconcile every source ledger and account category. This is local execution, not live beacon or elapsed-live-time evidence.
   - _Requirements: 7.1–12.7, 18.1–18.8, 20.1–20.5, 22.2–22.3_
 
