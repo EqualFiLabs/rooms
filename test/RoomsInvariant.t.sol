@@ -150,8 +150,7 @@ contract RoomsHandler is ViewTest {
         if (m.settled) return;
         uint8 room = outcome % 2;
         if (!registry.hasSig(m.selectedTarget)) cacheForRoom(id, room);
-        m.seed =
-            keccak256(
+        m.seed = keccak256(
             abi.encode(registry.randomnessOf(m.selectedTarget), block.chainid, diamond, id)
         );
         room = uint8(uint256(m.seed) % 2);
