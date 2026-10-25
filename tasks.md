@@ -40,7 +40,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - New files: `src/libraries/LibRoomsConfig.sol`, `src/interfaces/IGovernance.sol`, `src/facets/GovernanceFacet.sol`, `test/RoomsConfig.t.sol`.
     - Details: Positive base price and total ticket supply; duration at least four seconds; arbitrary integer room counts 2–24; player/Operator gross BPS with positive residual treasury; treasury-based reward BPS below 100%; zero optional purchase limit means no additional per-purchase cap, without bypassing supply. Four epoch multipliers are fixed protocol constants. Create versions disabled by default outside initialization. Reject invalid values using widened arithmetic. Test meaningful boundary/error behavior, including 3/7/24 rooms, invalid short durations, and receipts beyond Fiddy's uint128 bound.
     - _Requirements: 2.1–2.8, 8.2–8.6, 21.4, 22.1_
-  - [ ] 3.2 Add current approval and permanent known-asset state.
+  - [x] 3.2 Add current approval and permanent known-asset state.
     - Modified files: governance, initializer, and accounting storage; new coverage in `test/RoomsGovernance.t.sol`.
     - Details: Explicit timelocked approve/remove; only nonzero contracts other than Diamond; retain known assets forever for historical exits/surplus. No FoT/rebase compatibility code or per-transfer balance-delta wrapper. Record the supported-token/alias admission assumptions and prove removing approval cannot erase historical records.
     - _Requirements: 3.1–3.8, 14.2, 14.8, 18.7, 21.5–21.6_

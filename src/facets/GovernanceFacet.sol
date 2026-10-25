@@ -38,4 +38,12 @@ contract GovernanceFacet is IGovernance, Guarded {
         g.configEnabled[version] = enabled;
         emit RoomsConfigEnabled(version, enabled);
     }
+
+    function setAssetApproved(address asset, bool approved) external onlyAuthority nonReentrant {
+        LibRoomsConfig.validateContract(asset);
+        S.AccountingStorage storage a = S.accountingStorage();
+        a.assetApproved[asset] = approved;
+        if (approved) a.knownAsset[asset] = true;
+        emit AssetApprovalUpdated(asset, approved);
+    }
 }

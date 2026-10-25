@@ -8,9 +8,10 @@ abstract contract GovernanceTest is RoomsTest {
 
     function setUp() public virtual override {
         super.setUp();
-        bytes4[] memory s = new bytes4[](2);
+        bytes4[] memory s = new bytes4[](3);
         s[0] = GovernanceFacet.createRoomsConfig.selector;
         s[1] = GovernanceFacet.setRoomsConfigEnabled.selector;
+        s[2] = GovernanceFacet.setAssetApproved.selector;
         install(address(new GovernanceFacet()), s);
         gov = GovernanceFacet(diamond);
     }
