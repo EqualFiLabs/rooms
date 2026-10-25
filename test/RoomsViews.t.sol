@@ -71,4 +71,54 @@ contract RoomsViewsTest is ViewTest {
         vm.expectRevert(abi.encodeWithSelector(Errors.RoundNotOpen.selector, sold));
         views.quotePurchase(sold, 1);
     }
+
+    function testConditionalPreviewIncludesPaymentAndInheritedPotWithoutFeesOnInheritance() public {
+        uint256 first = open(1, 0, 10);
+        finish(first, 1);
+        assertEq(views.pendingRollover(1), 5 ether);
+        uint256 id = open(1, 0, 2);
+        uint256 start = block.timestamp;
+        (uint256 pot, uint256 tickets, uint256 unit) = views.previewRoomPayout(id, 0, 2);
+        assertEq(pot, 7 ether);
+        assertEq(tickets, 4);
+        assertEq(unit, 1.75 ether);
+        buy(id, bob, 0, 2);
+        (uint256 existing,, uint256 actual) = views.previewRoomPayout(id, 0, 0);
+        assertEq(existing, pot);
+        assertEq(actual, unit);
+        vm.warp(start + 100);
+        (,,, uint256 payment,) = views.quotePurchase(id, 2);
+        (pot, tickets, unit) = views.previewRoomPayout(id, 0, 2);
+        assertEq(pot, 8.25 ether);
+        assertEq(tickets, 6);
+        buy(id, alice, 0, 2);
+        assertEq(views.round(id).receipts, 4 ether + payment);
+        vm.warp(views.round(id).closesAt);
+        (uint256 closed,,) = views.previewRoomPayout(id, 0, 0);
+        assertEq(closed, pot);
+        vm.expectRevert(abi.encodeWithSelector(Errors.RoundNotOpen.selector, id));
+        views.previewRoomPayout(id, 0, 1);
+        finish(id, 0);
+        assertEq(views.round(id).payoutPerTicket, unit);
+        assertEq(views.claimablePrize(id, bob), 2 * unit);
+        assertEq(views.claimablePrize(id, alice), 4 * unit);
+        vm.expectRevert(abi.encodeWithSelector(Errors.RoundNotOpen.selector, id));
+        views.previewRoomPayout(id, 0, 0);
+    }
+
+    function testPreviewBoundsAndEmptyRoomAreExplicit() public {
+        uint256 id = open(1, 0, 1);
+        (uint256 pot, uint256 tickets, uint256 unit) = views.previewRoomPayout(id, 1, 0);
+        assertEq(pot, 0.5 ether);
+        assertEq(tickets, 0);
+        assertEq(unit, 0);
+        vm.expectRevert(abi.encodeWithSelector(Errors.InvalidRoom.selector, 2));
+        views.previewRoomPayout(id, 2, 0);
+        vm.expectRevert(abi.encodeWithSelector(Errors.InsufficientSupply.selector, 100, 99));
+        views.previewRoomPayout(id, 1, 100);
+        buy(id, bob, 1, 99);
+        views.previewRoomPayout(id, 0, 0);
+        vm.expectRevert(abi.encodeWithSelector(Errors.RoundNotOpen.selector, id));
+        views.previewRoomPayout(id, 0, 1);
+    }
 }

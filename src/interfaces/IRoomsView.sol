@@ -35,4 +35,12 @@ interface IRoomsView {
         external
         view
         returns (uint8, uint16, uint256, uint256, uint256);
+    function previewRoomPayout(uint256 id, uint8 room, uint256 additionalTickets)
+        external
+        view
+        returns (
+            uint256 projectedPot,
+            uint256 projectedRoomTickets,
+            uint256 projectedPayoutPerTicket
+        );
 }

@@ -130,4 +130,20 @@ contract RoomsViewFacet is IRoomsView {
         unit = M.unitPrice(r.config.baseTicketPrice, e);
         payment = unit * quantity;
     }
+
+    function previewRoomPayout(uint256 id, uint8 room, uint256 additionalTickets)
+        external
+        view
+        returns (uint256 pot, uint256 tickets, uint256 unit)
+    {
+        Round storage r = S.gameStorage().rounds[id];
+        if (r.status == RoundStatus.None) revert Errors.RoundNotFound(id);
+        if (r.status == RoundStatus.Settled) revert Errors.RoundNotOpen(id);
+        if (room >= r.config.roomCount) revert Errors.InvalidRoom(room);
+        uint256 payment;
+        if (additionalTickets != 0) (,,, payment,) = quotePurchase(id, additionalTickets);
+        pot = r.rolloverIn + M.allocate(r.receipts + payment, r.config).pot;
+        tickets = S.gameStorage().roomTickets[id][room] + additionalTickets;
+        (unit,,) = M.perTicket(pot, tickets);
+    }
 }

@@ -8,7 +8,7 @@ abstract contract ViewTest is RevenueTest {
 
     function setUp() public virtual override {
         super.setUp();
-        bytes4[] memory s = new bytes4[](20);
+        bytes4[] memory s = new bytes4[](21);
         s[0] = RoomsViewFacet.roomsConfig.selector;
         s[1] = RoomsViewFacet.integrationVersion.selector;
         s[2] = RoomsViewFacet.round.selector;
@@ -29,6 +29,7 @@ abstract contract ViewTest is RevenueTest {
         s[17] = RoomsViewFacet.maxActiveRounds.selector;
         s[18] = RoomsViewFacet.activeRoundCount.selector;
         s[19] = RoomsViewFacet.quotePurchase.selector;
+        s[20] = RoomsViewFacet.previewRoomPayout.selector;
         install(address(new RoomsViewFacet()), s);
         views = RoomsViewFacet(diamond);
     }
