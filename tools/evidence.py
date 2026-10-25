@@ -43,11 +43,10 @@ def encode(item,value):
         raise ValueError('unsupported event ABI')
     return word(value)
 
-def catalog():
-    events={}
-    for name in ('RoomsFacet','SettlementFacet','ClaimsFacet','RevenueFacet'):
-        for item in json.loads((ROOT/'out'/f'{name}.sol'/f'{name}.json').read_text())['abi']:
-            if item['type']=='event': events[item['name']]=item
+def catalog(manifest=None):
+    if manifest is None:
+        manifest=json.loads((ROOT/'candidate-manifest.json').read_text())
+    events=dict(manifest['eventABIs'])
     events['Transfer']=dict(name='Transfer',inputs=[dict(name='from',type='address',indexed=True),dict(name='to',type='address',indexed=True),dict(name='value',type='uint256',indexed=False)])
     return events
 
@@ -69,7 +68,7 @@ def validate(trace,manifest):
     diamond=address(trace['diamond']); assets={address(x) for x in trace['assets']}
     rounds={}; pending=defaultdict(int); buckets=defaultdict(int); credits=defaultdict(int)
     ledgers={a:[0]*6 for a in assets}; balances=dict.fromkeys(assets,0)
-    events=catalog(); seen=set(); previous=(0,-1); active=set(); blocks={}; block_hashes={}; previous_time=0
+    events=catalog(manifest); seen=set(); previous=(0,-1); active=set(); blocks={}; block_hashes={}; block_log_indices={}; previous_time=0
     for receipt in trace['receipts']:
         tx=hash32(receipt['transactionHash']); require(tx not in seen,'duplicate receipt'); seen.add(tx)
         bh=hash32(receipt['blockHash']); integer(receipt['blockNumber'],1,2**64-1); integer(receipt['transactionIndex'],0,2**32-1)
@@ -78,9 +77,10 @@ def validate(trace,manifest):
         require(at>=previous_time,'block time order'); previous_time=at
         number=receipt['blockNumber']; require(number not in blocks or blocks[number]==(bh,at),'inconsistent block observations'); require(bh not in block_hashes or block_hashes[bh]==number,'block hash reuse'); blocks[number]=(bh,at); block_hashes[bh]=number
         require(type(receipt['status']) is int and receipt['status'] in (0,1) and (receipt['status']==1 or not receipt['logs']),'failed receipt logs')
-        expected_transfers=[]; actual_transfers=[]; touched=set()
+        expected_transfers=[]; actual_transfers=[]; touched=set(); opened_here=set(); allocated_here=set()
         for index,log in enumerate(receipt['logs']):
-            require(log['logIndex']==index,'log order')
+            log_index=integer(log['logIndex'],0,2**64-1)
+            require(log_index>block_log_indices.get(number,-1),'log order'); block_log_indices[number]=log_index
             name=log['event']; v=log['values']; emitter=address(log['address'])
             expected=raw_log(name,v,emitter,events)
             require(log['topics']==expected['topics'] and log['data']==expected['data'],'raw/decoded log mismatch')
@@ -103,7 +103,7 @@ def validate(trace,manifest):
                 inherited=pending[cv]; require(v['inheritedPot']==inherited,'inherited pot')
                 pending[cv]=0; ledgers[a][2]-=inherited; ledgers[a][0]+=inherited
                 rounds[rid]=dict(config=c,cv=cv,iv=iv,asset=a,opened=at,closes=v['closesAt'],effective=v['closesAt'],inherited=inherited,gross=0,total=0,holdings=defaultdict(int),counts=[0]*c['roomCount'],status='open',claimed=set(),rollover=0)
-                active.add(cv)
+                active.add(cv); opened_here.add(rid)
             elif name in ('DeadlineCommitted','RoundSoldOut'):
                 r=rounds[rid]
                 boundary=(r['closes'] if name=='DeadlineCommitted' else at)+r['config']['randomnessDelay']
@@ -133,9 +133,9 @@ def validate(trace,manifest):
                 allocations=dict(pot=pot,operatorRevenue=op,treasuryGross=treasury,finalizerTip=tip,treasuryNet=treasury-tip)
                 require(v['allocations']==allocations,'allocation amounts'); r['allocations']=allocations
                 ledgers[a][0]-=g+r['inherited']; ledgers[a][3]+=tip; ledgers[a][4]+=op; ledgers[a][5]+=treasury-tip
-                buckets[r['iv']+':'+a]+=op
+                buckets[r['iv']+':'+a]+=op; allocated_here.add(rid)
             elif name=='RolloverCredited':
-                r=rounds[rid]; require('allocations' in r and str(v['configVersion'])==r['cv'] and address(v['asset'])==r['asset'],'rollover provenance')
+                r=rounds[rid]; require(rid in allocated_here and r['status']!='settled' and str(v['configVersion'])==r['cv'] and address(v['asset'])==r['asset'],'rollover provenance')
                 pending[r['cv']]+=v['amount']; ledgers[r['asset']][2]+=v['amount']; r['rollover']+=v['amount']
             elif name=='RoundSettled':
                 r=rounds[rid]; require(r['status']!='settled' and 'allocations' in r,'settlement one shot')
@@ -167,6 +167,8 @@ def validate(trace,manifest):
                 a=address(v['asset']); amount=v['amount']; require(amount>0 and amount==balances[a]-sum(ledgers[a]),'surplus absorption'); ledgers[a][5]+=amount
             else:
                 raise ValueError('event outside ERC-20 lifecycle evidence scope')
+        for rid in opened_here:
+            require('original' in rounds[rid] and rounds[rid]['total']>0,'opening must commit and collect first purchase atomically')
         for rid in touched-{None}:
             r=rounds[rid]; require(r['status']!='open' or r['total']<r['config']['ticketSupply'],'missing atomic sellout')
             require('allocations' not in r or r['status']=='settled','incomplete settlement')

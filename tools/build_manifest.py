@@ -18,6 +18,15 @@ PINS = {'forge-std': 'bf647bd6046f2f7da30d0c2bf435e5c76a780c1b', 'openzeppelin-c
 def command(*args):
     return subprocess.check_output(args, cwd=ROOT, text=True, env=dict(os.environ, FOUNDRY_DISABLE_NIGHTLY_WARNING='1')).strip()
 
+def verify_sources(metadata, cache=None):
+    cache = {} if cache is None else cache
+    for source, record in metadata['sources'].items():
+        require((ROOT / source).is_file(), 'Missing imported source')
+        if source not in cache:
+            cache[source] = command('cast', 'keccak', '0x' + (ROOT / source).read_bytes().hex())
+        require(cache[source] == record['keccak256'], 'Stale imported source artifact')
+
+
 def build():
     config = tomllib.loads((ROOT / 'foundry.toml').read_text())['profile']['default']
     require((config['solc'], config['evm_version'], config['optimizer'], config['optimizer_runs']) == ('0.8.33', 'osaka', True, 200))
@@ -28,6 +37,8 @@ def build():
     files = sorted((ROOT / 'src').rglob('*.sol')) + sorted((ROOT / 'script').rglob('*.sol'))
     sources = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
     contracts = {}
+    source_cache = {}
+    event_abis = {}
     for p in files:
         artifact = ROOT / 'out' / p.name / f'{p.stem}.json'
         if not artifact.exists():
@@ -38,6 +49,12 @@ def build():
         if runtime in ('', '0x'):
             continue
         metadata = data['metadata']
+        verify_sources(metadata, source_cache)
+        if '/facets/' in str(p):
+            for item in data['abi']:
+                if item['type'] == 'event':
+                    require(item['name'] not in event_abis or event_abis[item['name']] == item, 'Ambiguous event ABI')
+                    event_abis[item['name']] = item
         require(metadata['compiler']['version'] == '0.8.33+commit.64118f21')
         require(metadata['sources'][str(p.relative_to(ROOT))]['keccak256'] == command('cast', 'keccak', '0x' + p.read_bytes().hex()))
         settings = metadata['settings']
@@ -59,7 +76,7 @@ def build():
                 require(selector not in assembly, f'Selector collision: {signature}')
                 assembly[selector] = {'contract': key, 'signature': signature}
     require(len(assembly) == 51)
-    return {'schema': 1, 'storageSchemas': storage, 'selectorAssembly': assembly, 'sourceCommit': command('git', 'rev-parse', 'HEAD'), 'compiler': '0.8.33+commit.64118f21', 'evmVersion': 'osaka', 'optimizerRuns': 200, 'viaIR': False, 'dependencies': PINS, 'sourceSHA256': sources, 'contracts': contracts}
+    return {'schema': 1, 'eventABIs': event_abis, 'storageSchemas': storage, 'selectorAssembly': assembly, 'sourceCommit': command('git', 'rev-parse', 'HEAD'), 'compiler': '0.8.33+commit.64118f21', 'evmVersion': 'osaka', 'optimizerRuns': 200, 'viaIR': False, 'dependencies': PINS, 'sourceSHA256': sources, 'contracts': contracts}
 if __name__ == '__main__':
     result = json.dumps(build(), sort_keys=True, indent=2) + '\n'
     if len(sys.argv) == 2:

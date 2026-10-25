@@ -57,3 +57,21 @@ class EvidenceTest(unittest.TestCase):
         log['values']['amount']=113
         changed=raw_log(log['event'],log['values'],log['address']);changed['logIndex']=0;t['receipts'][3]['logs'][0]=changed
         with self.assertRaises(Invalid):validate(t,m)
+
+    def test_opening_requires_commitment_and_payment_in_same_receipt(self):
+        t,m=fixture(); t['receipts']=t['receipts'][:1]; r=t['receipts'][0];r['logs']=r['logs'][:1]
+        a=t['assets'][0];r['after']['balances'][a]=0;r['after']['accounting'][a]=dict.fromkeys(FIELDS,0)
+        with self.assertRaises(Invalid):validate(t,m)
+
+    def test_block_global_log_indices_allow_gaps(self):
+        t,m=fixture()
+        for i,log in enumerate(t['receipts'][0]['logs']):log['logIndex']=7+3*i
+        validate(t,m)
+        t['receipts'][0]['logs'][1]['logIndex']=7
+        with self.assertRaises(Invalid):validate(t,m)
+
+    def test_supplied_candidate_abi_needs_no_local_artifact(self):
+        from unittest.mock import patch
+        t,m=fixture()
+        with patch('tools.evidence.ROOT',Path('unavailable-artifact-root')):
+            validate(t,m)
