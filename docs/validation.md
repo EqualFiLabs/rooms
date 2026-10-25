@@ -14,3 +14,7 @@ The actual Diamond dispatches initialized governance and complete opening/purcha
 | Backing and capacity | Gross receipts equal escrow and actual balances, separate assets, inherited-pot component attachment/rollback, no release at either cutoff before settlement |
 
 `RoomsOpeningIntegration` combines both sales cutoffs and admission changes in funded local scenarios. Inherited-pot attachment currently has component fixture coverage; complete empty-outcome generation and successor consumption will be exercised with settlement. No real BLS proof, live chain, Router delivery, prize claim or formal result is implied by this checkpoint.
+
+## Settlement component boundary
+
+Allocation properties exercise full-width receipts, complement treasury, treasury-funded tips and wallet-partition-neutral per-ticket arithmetic. Controlled Registry tests cover the selected target only, proof failure rollback, cached zero randomness, provenance after effective close and chain/Diamond/round domain separation. Common-allocation tests observe fee buckets and capacity release independently of token/Router delivery. These are internal components exposed only by test harnesses; the returned player pot is deliberately outside that component assertion. The release Diamond has no public settlement selector until both empty and populated outcomes are assembled together.

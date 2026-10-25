@@ -67,7 +67,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
   - Details: Run focused Diamond/configuration/governance/purchase tests and exercise an actual local Diamond with real supported-token approvals/transfers and concurrent configurations. Reconcile epoch prices and actual receipts, remaining supply, original/selected targets, snapshots, capacities, ticket totals, and attached/pending pot backing for early sellout and unsold deadline closure. Ask for review only for material unresolved behavior; no automatic implementation or release scope expansion.
   - _Requirements: 1.1–6.7, 15.1–17.5, 18.1–18.8, 20.1–20.5, 22.1–22.3_
 
-- [ ] 6. Implement allocation math and exact-beacon settlement
+- [x] 6. Implement allocation math and exact-beacon settlement
   - [x] 6.1 Implement full-width allocation and deterministic per-ticket math.
     - Modified file: `src/libraries/LibRoomsMath.sol`; new arithmetic fuzz coverage.
     - Details: Implement shared epoch selection and ceiling-rounded unit-price math for purchases/quotes/previews. Compute player and Operator floors from actual aggregate epoch-priced gross, complement treasury, calculate treasury-funded percentage reward, and split player pot into distributable and remainder. Cover non-divisible-duration epoch boundaries, coarse-unit prices, same-epoch purchase partitioning, equal prize weight across epochs, tiny/zero rounded allocations, large representable receipts, high valid BPS, positive treasury retention, and arbitrary wallet partitions. Do not reuse Fiddy's capped uint128/unchecked allocation helper unchanged.
@@ -76,7 +76,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - New files: `src/interfaces/ISettlement.sol`, `src/facets/SettlementFacet.sol`, `test/RoomsSettlement.t.sol`.
     - Details: Require SoldOut or Open past deadline; use only the selected target, `hasSig` and `postedAt > effectiveClose`, domain separation with Diamond/chain/round, modulo by snapshotted room count, and one-shot terminal transition. Cache reuse ignores supplied proof bytes. Test sellout settlement before original deadline, unsold deadline settlement from actual mixed-epoch receipts, original-target rejection after selection of a distinct sellout target, unavailable selected target without fallback, invalid-proof rollback, no post-close target changes, zero-randomness sentinel avoidance, one-ticket rounds, and independent concurrent settlements. Do not implement BLS, refunds, or fallback entropy.
     - _Requirements: 1.5, 6.1–6.7, 7.1–7.8, 17.1–17.5, 20.1–20.5, 21.4, 21.6–21.7_
-  - [ ] 6.3 Record allocations and release active capacity without delivery.
+  - [x] 6.3 Record allocations and release active capacity without delivery.
     - Modified files: settlement, accounting source ledgers, and settlement tests.
     - Details: Credit Operator buckets by snapshotted integration/token, finalizer by caller/token, and treasury; debit receipts plus inherited pot from escrow; release pointer/count. Demonstrate a reverting token receiver or unavailable Router cannot block settlement, and repeated settlement cannot credit anything twice.
     - _Requirements: 4.5–4.6, 7.5, 7.8, 8.1–8.8, 13.1, 18.1–18.8, 20.4_

@@ -11,4 +11,13 @@ contract SettlementComponents is Guarded {
     {
         return LibRoomsSettlement.acquire(id, sig);
     }
+
+    function allocateCommon(uint256 id, bytes calldata sig)
+        external
+        nonReentrant
+        returns (uint256)
+    {
+        (bytes32 seed, uint8 room) = LibRoomsSettlement.acquire(id, sig);
+        return LibRoomsSettlement.common(id, seed, room);
+    }
 }
