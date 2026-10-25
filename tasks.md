@@ -147,7 +147,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - Details: Full suite, extended fuzz/invariant campaigns, static analysis, formatting/build checks, and deterministic dependency/runtime manifests. Use focused local checks while iterating. Measure actual purchase/settlement/claim/expiry/Router gas for 2/8/24 rooms and supported assets; do not publish remembered gas/dollar estimates or claim every configured reward pays gas. Exercise new paths directly; tests alone are not full runtime evidence.
     - _Requirements: 5.5, 8.8, 19.6, 21.6–21.7, 22.1–22.3, 22.6_
 
-- [ ] 13. Checkpoint - Reconcile the complete candidate and evidence boundaries
+- [x] 13. Checkpoint - Reconcile the complete candidate and evidence boundaries
   - Details: Ensure all applicable CI-owned gates pass for the committed candidate when publication is authorized; run the actual local changed lifecycle and record what it proves. Review every acceptance criterion against design/tests without weakening inconvenient behavior. Separate mocked, real-contract local, fork, formal, and live claims. Resolve any missing requirements before calling the candidate complete.
   - _Requirements: 1.1–22.8_
 
