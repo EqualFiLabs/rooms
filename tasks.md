@@ -26,7 +26,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - New files: `foundry.toml`, dependency/remapping declarations, project CI workflow, and applicable license/provenance declarations.
     - Details: Match reference compiler conventions; preserve a narrow local test profile and explicit broader CI-owned gates. Do not add frontend, token/NFT contracts, a factory, or generic vault dependencies.
     - _Requirements: 1.1–1.6, 22.1, 22.6–22.8_
-  - [ ] 2.2 Copy Fiddy Diamond plumbing and define Rooms application types/storage.
+  - [x] 2.2 Copy Fiddy Diamond plumbing and define Rooms application types/storage.
     - New files: `src/RoomsDiamond.sol`, `src/libraries/LibDiamond.sol`, cut/loupe facets and interfaces, `src/shared/DiamondTypes.sol`, `src/shared/Types.sol`, `src/shared/Errors.sol`, `src/libraries/LibRoomsStorage.sol`.
     - Details: Preserve Fiddy selector dispatch, code checks, authority semantics, revert propagation, finalization latch, and native rejection. Use fresh Rooms application namespaces, uint256 amounts/ticket supply/totals, pending rollover per config, round/user/room counts, original deadline and selected targets, sellout/effective-close timestamps, independent claim markers, and expiry state. Do not import Fiddy's narrower capped-ticket arithmetic assumptions or legacy refund layout.
     - _Requirements: 1.1–1.6, 2.6–2.8, 5.2, 5.5, 10.7, 14.6–14.7, 16.2–16.5, 18.1–18.8_
