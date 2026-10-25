@@ -36,7 +36,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - _Requirements: 1.5–1.6, 16.1–16.7, 20.1–20.5, 22.2_
 
 - [ ] 3. Implement future-round configuration, approval, and integration governance
-  - [ ] 3.1 Implement immutable configuration versions and validation.
+  - [x] 3.1 Implement immutable configuration versions and validation.
     - New files: `src/libraries/LibRoomsConfig.sol`, `src/interfaces/IGovernance.sol`, `src/facets/GovernanceFacet.sol`, `test/RoomsConfig.t.sol`.
     - Details: Positive base price and total ticket supply; duration at least four seconds; arbitrary integer room counts 2–24; player/Operator gross BPS with positive residual treasury; treasury-based reward BPS below 100%; zero optional purchase limit means no additional per-purchase cap, without bypassing supply. Four epoch multipliers are fixed protocol constants. Create versions disabled by default outside initialization. Reject invalid values using widened arithmetic. Test meaningful boundary/error behavior, including 3/7/24 rooms, invalid short durations, and receipts beyond Fiddy's uint128 bound.
     - _Requirements: 2.1–2.8, 8.2–8.6, 21.4, 22.1_
