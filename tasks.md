@@ -35,7 +35,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - Details: Authority-match validation, role checks, guard initialization, approved assets, initial integration/config snapshots, and events happen in the approved initial cut. Exercise the actual Diamond through add/replace/remove, rejected unauthorized cuts, initializer replay, a storage-preserving upgrade, finalization, and continued installed operation. Do not claim broad initialization confidence from direct facet-only calls.
     - _Requirements: 1.5–1.6, 16.1–16.7, 20.1–20.5, 22.2_
 
-- [ ] 3. Implement future-round configuration, approval, and integration governance
+- [x] 3. Implement future-round configuration, approval, and integration governance
   - [x] 3.1 Implement immutable configuration versions and validation.
     - New files: `src/libraries/LibRoomsConfig.sol`, `src/interfaces/IGovernance.sol`, `src/facets/GovernanceFacet.sol`, `test/RoomsConfig.t.sol`.
     - Details: Positive base price and total ticket supply; duration at least four seconds; arbitrary integer room counts 2–24; player/Operator gross BPS with positive residual treasury; treasury-based reward BPS below 100%; zero optional purchase limit means no additional per-purchase cap, without bypassing supply. Four epoch multipliers are fixed protocol constants. Create versions disabled by default outside initialization. Reject invalid values using widened arithmetic. Test meaningful boundary/error behavior, including 3/7/24 rooms, invalid short durations, and receipts beyond Fiddy's uint128 bound.
@@ -44,7 +44,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - Modified files: governance, initializer, and accounting storage; new coverage in `test/RoomsGovernance.t.sol`.
     - Details: Explicit timelocked approve/remove; only nonzero contracts other than Diamond; retain known assets forever for historical exits/surplus. No FoT/rebase compatibility code or per-transfer balance-delta wrapper. Record the supported-token/alias admission assumptions and prove removing approval cannot erase historical records.
     - _Requirements: 3.1–3.8, 14.2, 14.8, 18.7, 21.5–21.6_
-  - [ ] 3.3 Add versioned integrations, concurrency settings, treasury routing, guardian, and finalization selectors.
+  - [x] 3.3 Add versioned integrations, concurrency settings, treasury routing, guardian, and finalization selectors.
     - Modified files: governance and initialization; new integration interfaces and governance tests.
     - Details: Immutable Registry/Router pairs, no historical replacement, enable flags, active-round limit, pause-only guardian, authority-only unpause, validated treasury receiver, and `finalizeProtocol`. Finalization must leave operational configuration governance functional. Do not implement a custom timelock or authority-renunciation mechanism.
     - _Requirements: 4.3–4.4, 4.7, 13.6, 14.1, 15.1–15.6, 16.1–16.7, 17.1–17.5_
