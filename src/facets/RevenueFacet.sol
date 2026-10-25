@@ -6,6 +6,7 @@ import { IRevenue } from "../interfaces/IRevenue.sol";
 import { IOperatorFeeRouter } from "../interfaces/IOperatorFeeRouter.sol";
 import { LibRoomsStorage as S } from "../libraries/LibRoomsStorage.sol";
 import { LibOperatorFeeRouter } from "../libraries/LibOperatorFeeRouter.sol";
+import { LibRoomsAccounting } from "../libraries/LibRoomsAccounting.sol";
 import { Errors } from "../shared/Errors.sol";
 import { Guarded } from "../shared/Guarded.sol";
 
@@ -41,5 +42,30 @@ contract RevenueFacet is IRevenue, Guarded {
         IOperatorFeeRouter(router).addRewards(asset, amount);
         IERC20(asset).forceApprove(router, 0);
         return amount;
+    }
+    event TreasuryFlushed(address indexed asset, address indexed receiver, uint256 amount);
+    event TokenSurplusAbsorbed(address indexed asset, uint256 amount);
+
+    function flushTreasury(address asset, uint256 amount) external nonReentrant returns (uint256) {
+        if (amount == 0) revert Errors.ZeroAmount();
+        address receiver = S.governanceStorage().treasuryRecipient;
+        if (receiver == address(0) || receiver == address(this)) revert Errors.InvalidAddress();
+        uint256 available = S.accountingStorage().assets[asset].treasuryAvailable;
+        if (amount > available) revert Errors.InsufficientTreasuryBalance(amount, available);
+        S.accountingStorage().assets[asset].treasuryAvailable -= amount;
+        emit TreasuryFlushed(asset, receiver, amount);
+        IERC20(asset).safeTransfer(receiver, amount);
+        return amount;
+    }
+
+    function availableTokenSurplus(address asset) external view returns (uint256) {
+        return LibRoomsAccounting.surplus(asset);
+    }
+
+    function absorbTokenSurplus(address asset) external nonReentrant returns (uint256 amount) {
+        amount = LibRoomsAccounting.surplus(asset);
+        if (amount == 0) revert Errors.NoTokenSurplus();
+        S.accountingStorage().assets[asset].treasuryAvailable += amount;
+        emit TokenSurplusAbsorbed(asset, amount);
     }
 }

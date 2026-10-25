@@ -114,7 +114,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - New files: `src/interfaces/IRevenue.sol`, `src/interfaces/IOperatorFeeRouter.sol`, `src/libraries/LibOperatorFeeRouter.sol`, `src/facets/RevenueFacet.sol`, `test/RoomsRevenue.t.sol`.
     - Details: Preserve Fiddy readiness and exact-sized-then-zero allowance pattern, no transfer-delta accommodation. Integrate the actual Router implementation in local integration tests; use failing mocks only for narrow branches. Prove failed funding preserves the version/token bucket, later successful funding uses the same asset, and current integration changes cannot reroute the bucket.
     - _Requirements: 3.4–3.7, 13.1–13.7, 17.1–17.5, 18.1–18.8, 20.1–20.5_
-  - [ ] 10.2 Add treasury delivery and safe supported-token surplus absorption.
+  - [x] 10.2 Add treasury delivery and safe supported-token surplus absorption.
     - Modified files: RevenueFacet and revenue integration tests.
     - Details: Permissionless, amount-capped delivery only to configured receiver; all obligation categories included in surplus; known-asset checks before balance queries. Exercise direct donations, repeated absorption, expired-but-unprocessed prizes, pending/attached rollover, old finalizer/Operator credits, removed-known assets, unknown token facades, and reverting receiver retry. Do not add arbitrary unknown-token recovery or deposit-triggered fees on donations.
     - _Requirements: 3.4, 3.6, 3.8, 9.4, 12.4, 12.7, 14.1–14.5, 14.8, 18.1–18.8, 20.1–20.5_

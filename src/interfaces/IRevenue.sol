@@ -5,4 +5,7 @@ interface IRevenue {
     function flushOperatorRevenue(uint64 integrationVersion, address asset, uint256 amount)
         external
         returns (uint256 flushed);
+    function flushTreasury(address asset, uint256 amount) external returns (uint256 flushed);
+    function availableTokenSurplus(address asset) external view returns (uint256 amount);
+    function absorbTokenSurplus(address asset) external returns (uint256 amount);
 }

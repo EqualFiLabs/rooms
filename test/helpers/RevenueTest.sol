@@ -10,5 +10,10 @@ abstract contract RevenueTest is ClaimsTest {
         super.setUp();
         install(address(new RevenueFacet()), one(RevenueFacet.flushOperatorRevenue.selector));
         revenue = RevenueFacet(diamond);
+        bytes4[] memory s = new bytes4[](3);
+        s[0] = RevenueFacet.flushTreasury.selector;
+        s[1] = RevenueFacet.availableTokenSurplus.selector;
+        s[2] = RevenueFacet.absorbTokenSurplus.selector;
+        install(address(new RevenueFacet()), s);
     }
 }
