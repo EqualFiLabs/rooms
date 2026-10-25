@@ -124,7 +124,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - _Requirements: 14.6–14.8, 18.7–18.8, 20.1–20.5_
 
 - [ ] 11. Implement public economic views and reconstruction events
-  - [ ] 11.1 Add bounded occupancy, entitlements, state, and accounting views.
+  - [x] 11.1 Add bounded occupancy, entitlements, state, and accounting views.
     - New files: `src/interfaces/IRoomsView.sol`, `src/facets/RoomsViewFacet.sol`, `test/RoomsViews.t.sol`.
     - Details: All proposed views in design.md, including derived Locked and stored SoldOut phases, base/epoch prices, multiplier, supply/remaining tickets, purchase quotes, original/selected targets, sellout/effective close, active pointers, old/new approval status, source liabilities, pending pot, claim deadline, current/expired/consumed entitlement, exact room/user totals, and balance versus accounted total. Preserve user ticket history after claims. No privileged API, wallet-only reads, or participant enumeration.
     - _Requirements: 3.4, 4.6, 10.7, 12.2, 14.2–14.4, 15.6, 19.1–19.3, 19.6–19.7_
