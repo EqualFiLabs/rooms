@@ -21,6 +21,7 @@ contract RoomsHandler is ViewTest {
         uint64 originalTarget;
         uint64 selectedTarget;
         bytes32 terms;
+        bytes32 seed;
         uint256 receipts;
         uint256 total;
         uint256 inherited;
@@ -93,9 +94,8 @@ contract RoomsHandler is ViewTest {
         m.opened = uint64(block.timestamp);
         m.closes = uint64(block.timestamp + 12);
         m.originalTarget = registry.firstRoundAfter(block.timestamp + 12 + 30);
-        m.selectedTarget = q == 20
-            ? registry.firstRoundAfter(block.timestamp + 30)
-            : m.originalTarget;
+        m.selectedTarget =
+            q == 20 ? registry.firstRoundAfter(block.timestamp + 30) : m.originalTarget;
         m.terms = keccak256(abi.encode(r.config));
         m.inherited = pending[v];
         pending[v] = 0;
@@ -149,12 +149,14 @@ contract RoomsHandler is ViewTest {
         Model storage m = model[id];
         if (m.settled) return;
         uint8 room = outcome % 2;
-        if (registry.hasSig(m.selectedTarget)) {
-            settlement.settleRound(id, bytes(""));
-            room = views.round(id).winningRoom;
-        } else {
-            finish(id, room);
-        }
+        if (!registry.hasSig(m.selectedTarget)) cacheForRoom(id, room);
+        m.seed =
+            keccak256(
+            abi.encode(registry.randomnessOf(m.selectedTarget), block.chainid, diamond, id)
+        );
+        room = uint8(uint256(m.seed) % 2);
+        assertEq(settlement.settleRound(id, bytes("")), room);
+        assertEq(views.round(id).applicationSeed, m.seed);
         m.settled = true;
         m.winner = room;
         uint256 pot = m.inherited + m.receipts / 2;
@@ -267,6 +269,8 @@ contract RoomsHandler is ViewTest {
             if (m.settled) {
                 assertEq(r.prizeRemaining, m.prize - m.paid - m.expiredAmount);
                 assertEq(r.prizeExpired, m.expired);
+                assertEq(r.applicationSeed, m.seed);
+                assertEq(r.winningRoom, m.winner);
                 assertEq(views.prizeClaimed(id, alice), consumed[id][alice]);
                 assertEq(views.prizeClaimed(id, bob), consumed[id][bob]);
             } else {

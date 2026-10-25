@@ -133,7 +133,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - Details: Preview includes the hypothetical current-epoch payment in gross and ticket quantity in room totals, not inherited rollover as fee base. Reject positive proposed additions after either cutoff or above supply/quantity limit; permit zero-addition existing-pot previews while unsettled. Emit epoch/unit price/payment, remaining supply, close reason, and original/selected beacon facts from design.md without one event per individual ticket. Test quote/preview boundaries against actual purchases, execution in a later epoch with maximum-payment protection, and equal settled entitlements for equal ticket holdings bought in different epochs; do not add tests that merely assert getters echo storage or event wiring matches source text.
     - _Requirements: 5.6, 8.1–8.8, 9.1–9.5, 19.4–19.7, 21.1–21.4, 22.2_
 
-- [ ] 12. Prove complete local lifecycle and stateful accounting behavior
+- [x] 12. Prove complete local lifecycle and stateful accounting behavior
   - [x] 12.1 Build actual-Diamond, supported-token, Registry, and Router integration scenarios.
     - New file: `test/RoomsEndToEnd.t.sol`; reusable integration setup supporting actual Router and real Registry vectors where applicable.
     - Details: Trace mixed-epoch entries to early sellout and unsold deadline settlement, populated/empty successor pots, all delivery paths, claim expiry, pause/removal, config/integration changes, shared-token configurations, different tokens, and post-finalization continued play. Include a first-purchase sellout and a final-purchase failure/retry with unchanged pre-failure target and accounting. Mocked chosen-room scenarios remain separately labeled; no synthetic balance injection or direct storage patching in consumer lifecycle proof.
@@ -142,7 +142,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - New file: `test/RoomsInvariant.t.sol`.
     - Details: Randomly interleave supported deposits, epoch-priced openings/purchases, time advancement across epoch/deadline boundaries, sellout selection, exact-selected-target cache/settlement, claims/expiry, donations/absorption, revenue retries, pause/removal, and new versions. Check conservation, solvency, actual-payment/source aggregates, supply bounds, same-epoch purchase-splitting neutrality, equal prize weight across epochs, counters/pointers, immutable terms/original targets, only the prescribed one-shot sellout selection, terminal monotonicity, no double claim/rollover/expiry, and independent tokens/configurations with a deterministic reference model. Use consistent reachable preconditions and witnesses rather than vacuous success paths.
     - _Requirements: 4.1–4.7, 6.1–6.7, 8.6, 9.1–9.8, 10.4, 12.1–12.7, 18.1–18.8, 20.1–20.5, 22.3_
-  - [ ] 12.3 Establish CI-owned release gates and measured costs.
+  - [x] 12.3 Establish CI-owned release gates and measured costs.
     - Modified files: CI workflow, test profiles, release validation commands.
     - Details: Full suite, extended fuzz/invariant campaigns, static analysis, formatting/build checks, and deterministic dependency/runtime manifests. Use focused local checks while iterating. Measure actual purchase/settlement/claim/expiry/Router gas for 2/8/24 rooms and supported assets; do not publish remembered gas/dollar estimates or claim every configured reward pays gas. Exercise new paths directly; tests alone are not full runtime evidence.
     - _Requirements: 5.5, 8.8, 19.6, 21.6–21.7, 22.1–22.3, 22.6_

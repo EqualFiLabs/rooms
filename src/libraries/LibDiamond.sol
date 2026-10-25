@@ -166,6 +166,8 @@ library LibDiamond {
         if (data.length == 0) revert Errors.EmptyInitializationData();
 
         _enforceHasCode(init);
+        // Only authority-authorized cuts reach this atomic initializer; arbitrary upgrade power is explicit.
+        // forge-lint: disable-next-line(controlled-delegatecall)
         (bool success, bytes memory reason) = init.delegatecall(data);
         if (!success) revert Errors.InitializationFailed(reason);
     }
