@@ -22,7 +22,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - _Requirements: 2.1–2.8, 3.1–3.8, 6.6–6.7, 15.1–15.6, 16.1, 16.6–16.7, 21.5–21.6, 22.6_
 
 - [ ] 2. Establish the minimal Diamond and isolated storage
-  - [ ] 2.1 Add the implementation toolchain and pinned dependencies only after implementation is authorized.
+  - [x] 2.1 Add the implementation toolchain and pinned dependencies only after implementation is authorized.
     - New files: `foundry.toml`, dependency/remapping declarations, project CI workflow, and applicable license/provenance declarations.
     - Details: Match reference compiler conventions; preserve a narrow local test profile and explicit broader CI-owned gates. Do not add frontend, token/NFT contracts, a factory, or generic vault dependencies.
     - _Requirements: 1.1–1.6, 22.1, 22.6–22.8_
