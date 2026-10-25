@@ -14,7 +14,7 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
   - [x] 1.1 Confirm the settlement-reward denominator and dust destination.
     - Details: Review the draft's treasury-gross-based percentage, deducted only from treasury, and per-ticket division remainder into the next configuration pot. Confirm the 30-day period applies to player prizes, not earned finalizer or pending Operator liabilities. Update the three root documents together for accepted revisions before writing contracts.
     - _Requirements: 8.1–8.8, 10.1–10.7, 12.1–12.7, 22.7–22.8_
-  - [ ] 1.2 Freeze source, toolchain, and licensing inputs.
+  - [x] 1.2 Freeze source, toolchain, and licensing inputs.
     - Details: Record Fiddy main `795425ef6a8830278b56b9052aa2271e92930eb3` and Registry main `118a94d2e447055d1a47d1a13488e887aaa4a822` as the reviewed source baseline. Inspect the exact dependency revisions used for OpenZeppelin, Registry, Router, and test utilities; do not assume Fiddy's Registry submodule is current Registry main. Preserve upstream notices and resolve BUSL reuse/licensing before publication. Start from Fiddy's Solidity 0.8.30/200 optimizer runs/Osaka settings unless a reviewed target constraint requires a change.
     - _Requirements: 1.1, 1.4, 1.6, 17.5, 21.6–21.7, 22.1, 22.6_
   - [ ] 1.3 Approve the concrete launch configuration and external-authority policy.
