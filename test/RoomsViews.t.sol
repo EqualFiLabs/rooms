@@ -5,6 +5,54 @@ import { RoundPhase, Round, RoomsConfig } from "../src/shared/Types.sol";
 import { Errors } from "../src/shared/Errors.sol";
 
 contract RoomsViewsTest is ViewTest {
+    function testQuotesRemainAvailableWhilePurchasesArePausedOrAssetIsRemoved() public {
+        uint256 id = open(1, 0, 1);
+        gov.setPaused(true);
+        (,,, uint256 payment,) = views.quotePurchase(id, 2);
+        vm.prank(bob);
+        vm.expectRevert(Errors.ProtocolPaused.selector);
+        rooms.buyTickets(id, 0, 2, payment);
+        gov.setPaused(false);
+        gov.setAssetApproved(address(token), false);
+        (,,, uint256 removedPayment,) = views.quotePurchase(id, 2);
+        assertEq(removedPayment, payment);
+        vm.prank(bob);
+        vm.expectRevert(abi.encodeWithSelector(Errors.AssetNotApproved.selector, address(token)));
+        rooms.buyTickets(id, 0, 2, payment);
+        gov.setAssetApproved(address(token), true);
+        uint256 before = token.balanceOf(bob);
+        vm.prank(bob);
+        rooms.buyTickets(id, 0, 2, payment);
+        assertEq(before - token.balanceOf(bob), payment);
+    }
+
+    function testQuoteAndPurchaseRejectTheSameQuantityBounds() public {
+        RoomsConfig memory c = fixture();
+        c.ticketSupply = 5;
+        c.maxTicketsPerPurchase = 3;
+        uint64 v = gov.createRoomsConfig(c);
+        gov.setRoomsConfigEnabled(v, true);
+        uint256 id = open(v, 0, 3);
+        assertQuantityRejected(id, 0, abi.encodeWithSelector(Errors.InvalidTicketQuantity.selector));
+        assertQuantityRejected(id, 4, abi.encodeWithSelector(Errors.TicketLimitExceeded.selector));
+        assertQuantityRejected(
+            id, 3, abi.encodeWithSelector(Errors.InsufficientSupply.selector, 3, 2)
+        );
+        (,,, uint256 payment, uint256 remaining) = views.quotePurchase(id, 2);
+        assertEq(remaining, 2);
+        vm.prank(bob);
+        rooms.buyTickets(id, 0, 2, payment);
+        assertEq(views.round(id).totalTickets, 5);
+    }
+
+    function assertQuantityRejected(uint256 id, uint256 quantity, bytes memory reason) internal {
+        vm.expectRevert(reason);
+        views.quotePurchase(id, quantity);
+        vm.prank(bob);
+        vm.expectRevert(reason);
+        rooms.buyTickets(id, 0, quantity, type(uint256).max);
+    }
+
     function testQuoteTracksRoundedEpochPaymentAndMaximumProtection() public {
         RoomsConfig memory c = fixture();
         c.baseTicketPrice = 3;

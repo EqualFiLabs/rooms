@@ -24,11 +24,12 @@ PINS = {
 }
 
 
-def command(*args):
+def command(*args, stdin=None):
     return subprocess.check_output(
         args,
         cwd=ROOT,
         text=True,
+        input=stdin,
         env=dict(os.environ, FOUNDRY_DISABLE_NIGHTLY_WARNING="1"),
     ).strip()
 
@@ -39,9 +40,37 @@ def verify_sources(metadata, cache=None):
         require((ROOT / source).is_file(), "Missing imported source")
         if source not in cache:
             cache[source] = command(
-                "cast", "keccak", "0x" + (ROOT / source).read_bytes().hex()
+                "cast", "keccak", stdin="0x" + (ROOT / source).read_bytes().hex()
             )
         require(cache[source] == record["keccak256"], "Stale imported source artifact")
+
+
+def source_artifacts(source, cache=None):
+    """Resolve declared compiler targets, including contracts in .s.sol files."""
+    relative = str(source.relative_to(ROOT))
+    text = re.sub(r"/\*.*?\*/|//[^\n]*", "", source.read_text(), flags=re.S)
+    names = re.findall(
+        r"^\s*(?:abstract\s+)?(?:contract|interface|library)\s+(\w+)\b", text, re.M
+    )
+    for name in names:
+        artifact = ROOT / "out" / source.name / f"{name}.json"
+        require(artifact.is_file(), f"Missing artifact for {relative}:{name}")
+        data = json.loads(artifact.read_text())
+        metadata = data["metadata"]
+        settings = metadata["settings"]
+        require(
+            settings["compilationTarget"] == {relative: name},
+            "Mismatched compilation target",
+        )
+        require(relative in metadata["sources"], "Missing compilation target source")
+        verify_sources(metadata, cache)
+        require(metadata["compiler"]["version"] == "0.8.33+commit.64118f21")
+        require(not settings.get("viaIR", False))
+        require(
+            settings["evmVersion"] == "osaka"
+            and settings["optimizer"] == {"enabled": True, "runs": 200}
+        )
+        yield f"{relative}:{name}", data
 
 
 def build():
@@ -76,53 +105,31 @@ def build():
         for p in files
     }
     contracts = {}
+    script_contracts = {}
     source_cache = {}
     event_abis = {}
     for p in files:
-        artifact = ROOT / "out" / p.name / f"{p.stem}.json"
-        if not artifact.exists():
-            require(
-                not re.search(
-                    "^(?:abstract )?(?:contract|interface|library) "
-                    + re.escape(p.stem)
-                    + "\\b",
-                    p.read_text(),
-                    re.M,
-                ),
-                f"Missing artifact for {p.stem}",
+        for key, data in source_artifacts(p, source_cache):
+            runtime = data["deployedBytecode"]["object"]
+            if runtime in ("", "0x"):
+                continue
+            if "/facets/" in str(p):
+                for item in data["abi"]:
+                    if item["type"] == "event":
+                        require(
+                            item["name"] not in event_abis
+                            or event_abis[item["name"]] == item,
+                            "Ambiguous event ABI",
+                        )
+                        event_abis[item["name"]] = item
+            inventory = (
+                script_contracts if p.is_relative_to(ROOT / "script") else contracts
             )
-            continue
-        data = json.loads(artifact.read_text())
-        runtime = data["deployedBytecode"]["object"]
-        if runtime in ("", "0x"):
-            continue
-        metadata = data["metadata"]
-        verify_sources(metadata, source_cache)
-        if "/facets/" in str(p):
-            for item in data["abi"]:
-                if item["type"] == "event":
-                    require(
-                        item["name"] not in event_abis
-                        or event_abis[item["name"]] == item,
-                        "Ambiguous event ABI",
-                    )
-                    event_abis[item["name"]] = item
-        require(metadata["compiler"]["version"] == "0.8.33+commit.64118f21")
-        require(
-            metadata["sources"][str(p.relative_to(ROOT))]["keccak256"]
-            == command("cast", "keccak", "0x" + p.read_bytes().hex())
-        )
-        settings = metadata["settings"]
-        require(not settings.get("viaIR", False))
-        require(
-            settings["evmVersion"] == "osaka"
-            and settings["optimizer"] == {"enabled": True, "runs": 200}
-        )
-        contracts[f"{p.relative_to(ROOT)}:{p.stem}"] = {
-            "runtimeKeccak256": command("cast", "keccak", runtime),
-            "runtimeBytes": len(runtime.removeprefix("0x")) // 2,
-            "selectors": data["methodIdentifiers"],
-        }
+            inventory[key] = {
+                "runtimeKeccak256": command("cast", "keccak", runtime),
+                "runtimeBytes": len(runtime.removeprefix("0x")) // 2,
+                "selectors": data["methodIdentifiers"],
+            }
     require("src/RoomsDiamond.sol:RoomsDiamond" in contracts)
     storage = {}
     for name in ("LibRoomsStorage", "LibDiamond"):
@@ -160,6 +167,7 @@ def build():
         "dependencies": PINS,
         "sourceSHA256": sources,
         "contracts": contracts,
+        "scriptContracts": script_contracts,
     }
 
 

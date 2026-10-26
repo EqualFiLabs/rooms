@@ -8,6 +8,7 @@ solc = "0.8.33"
 evm_version = "osaka"
 optimizer = true
 optimizer_runs = 200
+fs_permissions = [{ access = "read", path = "./out" }]
 
 [profile.ci.fuzz]
 runs = 1024
