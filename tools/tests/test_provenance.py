@@ -1,14 +1,64 @@
 import copy
 import json
 from pathlib import Path
+import subprocess
+from tempfile import TemporaryDirectory
 import unittest
 from unittest.mock import patch
-from tools.build_manifest import source_artifacts, verify_sources
+from tools.build_manifest import source_artifacts, source_state, verify_sources
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 class ProvenanceTest(unittest.TestCase):
+    def test_source_state_marks_staged_unstaged_and_untracked_changes(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+
+            def git(*args):
+                return subprocess.check_output(
+                    ["git", *args], cwd=root, text=True
+                ).strip()
+
+            git("init", "--quiet", "--initial-branch=fixture")
+            tracked = root / "source.sol"
+            tracked.write_text("committed source")
+            (root / ".gitignore").write_text("ignored/\n")
+            git("add", "source.sol", ".gitignore")
+            git(
+                "-c",
+                "user.name=Fixture",
+                "-c",
+                "user.email=fixture@example.invalid",
+                "-c",
+                "commit.gpgsign=false",
+                "-c",
+                "core.hooksPath=/dev/null",
+                "commit",
+                "--quiet",
+                "-m",
+                "Fixture baseline",
+            )
+            commit = git("rev-parse", "HEAD")
+            with patch("tools.build_manifest.ROOT", root):
+                self.assertEqual(
+                    source_state(), {"sourceCommit": commit, "sourceDirty": False}
+                )
+                tracked.write_text("changed source")
+                self.assertTrue(source_state()["sourceDirty"])
+                git("add", "source.sol")
+                self.assertTrue(source_state()["sourceDirty"])
+                self.assertEqual(source_state()["sourceCommit"], commit)
+                tracked.write_text("committed source")
+                git("add", "source.sol")
+                untracked = root / "new.sol"
+                untracked.write_text("new source")
+                self.assertTrue(source_state()["sourceDirty"])
+                untracked.unlink()
+                (root / "ignored").mkdir()
+                (root / "ignored/result").write_text("generated output")
+                self.assertFalse(source_state()["sourceDirty"])
+
     def test_script_runtime_has_separate_manifest_inventory(self):
         manifest = json.loads((ROOT / "candidate-manifest.json").read_text())
         key = "script/DeployRooms.s.sol:DeployRooms"

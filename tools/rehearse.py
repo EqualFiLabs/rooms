@@ -73,6 +73,7 @@ def run():
         signing=False,
         broadcasting=False,
         sourceCommit=manifest["sourceCommit"],
+        sourceDirty=manifest["sourceDirty"],
         manifestDigest=digest(manifest),
         tests=tests,
         evidence={

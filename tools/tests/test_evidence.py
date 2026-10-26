@@ -2,9 +2,10 @@ import copy
 import json
 from pathlib import Path
 import unittest
-from tools.evidence import validate, raw_log, keccak, word, FIELDS, catalog
+from unittest.mock import patch
+from tools.evidence import validate, raw_log, keccak, word, FIELDS, catalog, event_topic
 from tools.preflight import digest, Invalid
-from tools.tests.test_preflight import addr, H
+from tools.tests.test_preflight import addr
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -273,6 +274,23 @@ def fixture():
 
 
 class EvidenceTest(unittest.TestCase):
+    def test_event_topics_are_cached_by_signature_without_reusing_changed_abi(self):
+        event_topic.cache_clear()
+        self.addCleanup(event_topic.cache_clear)
+        events = catalog()
+        values = {"from": addr(1), "to": addr(2), "value": 1}
+        with patch("tools.evidence.keccak", wraps=keccak) as hash_topic:
+            first = raw_log("Transfer", values, addr(3), events)
+            second = raw_log("Transfer", dict(values, value=2), addr(3), events)
+            self.assertEqual(first["topics"], second["topics"])
+            self.assertNotEqual(first["data"], second["data"])
+            self.assertEqual(hash_topic.call_count, 1)
+            changed = copy.deepcopy(events)
+            changed["Transfer"]["inputs"][2]["type"] = "uint128"
+            third = raw_log("Transfer", values, addr(3), changed)
+            self.assertNotEqual(first["topics"][0], third["topics"][0])
+            self.assertEqual(hash_topic.call_count, 2)
+
     def test_full_receipt_fixture(self):
         result = validate(*fixture())
         self.assertEqual(result["receipts"], 10)
@@ -332,8 +350,6 @@ class EvidenceTest(unittest.TestCase):
             validate(t, m)
 
     def test_supplied_candidate_abi_needs_no_local_artifact(self):
-        from unittest.mock import patch
-
         t, m = fixture()
         with patch("tools.evidence.ROOT", Path("unavailable-artifact-root")):
             validate(t, m)

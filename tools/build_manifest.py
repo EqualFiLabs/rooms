@@ -34,6 +34,15 @@ def command(*args, stdin=None):
     ).strip()
 
 
+def source_state():
+    return {
+        "sourceCommit": command("git", "rev-parse", "HEAD"),
+        "sourceDirty": bool(
+            command("git", "status", "--porcelain", "--untracked-files=normal")
+        ),
+    }
+
+
 def verify_sources(metadata, cache=None):
     cache = {} if cache is None else cache
     for source, record in metadata["sources"].items():
@@ -159,7 +168,7 @@ def build():
         "eventABIs": event_abis,
         "storageSchemas": storage,
         "selectorAssembly": assembly,
-        "sourceCommit": command("git", "rev-parse", "HEAD"),
+        **source_state(),
         "compiler": "0.8.33+commit.64118f21",
         "evmVersion": "osaka",
         "optimizerRuns": 200,

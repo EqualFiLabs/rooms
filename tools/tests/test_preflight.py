@@ -16,6 +16,8 @@ H = "0x" + "ab" * 32
 
 def fixture():
     manifest = json.loads((ROOT / "candidate-manifest.json").read_text())
+    # The supplied release fixture models a committed candidate, even during local editing.
+    manifest["sourceDirty"] = False
     asset, auth, registry, router = (addr(n) for n in range(1, 5))
     config = dict(
         paymentToken=asset,
@@ -116,6 +118,20 @@ def fixture():
 
 
 class PreflightTest(unittest.TestCase):
+    def test_modified_or_unmarked_candidate_is_rejected_even_with_matching_digests(
+        self,
+    ):
+        for marker in (True, None, 0):
+            with self.subTest(marker=marker):
+                p, m, o = fixture()
+                if marker is None:
+                    m.pop("sourceDirty")
+                else:
+                    m["sourceDirty"] = marker
+                p["manifestDigest"] = o["manifestDigest"] = digest(m)
+                with self.assertRaisesRegex(Invalid, "committed clean candidate"):
+                    validate(p, m, o)
+
     def test_explicit_consistent_fixture(self):
         self.assertFalse(validate(*fixture())["liveExecutionPerformedByValidator"])
 

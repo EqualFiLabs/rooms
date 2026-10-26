@@ -5,8 +5,9 @@ Supplied records are not authenticated chain data. Collect and decode them indep
 """
 import argparse
 from collections import Counter, defaultdict
+from functools import lru_cache
 import json
-from pathlib import Path
+import os
 import subprocess
 
 if __package__:
@@ -30,7 +31,7 @@ def keccak(data):
     return subprocess.check_output(
         ["cast", "keccak", data],
         text=True,
-        env=__import__("os").environ | {"FOUNDRY_DISABLE_NIGHTLY_WARNING": "1"},
+        env=os.environ | {"FOUNDRY_DISABLE_NIGHTLY_WARNING": "1"},
     ).strip()
 
 
@@ -48,6 +49,11 @@ def abi_type(item):
         if item["type"] == "tuple"
         else item["type"]
     )
+
+
+@lru_cache(maxsize=256)
+def event_topic(signature):
+    return keccak(signature)
 
 
 def encode(item, value):
@@ -86,7 +92,9 @@ def catalog(manifest=None):
 def raw_log(event, values, emitter, events=None):
     item = (events or catalog())[event]
     topics = [
-        keccak(item["name"] + "(" + ",".join(abi_type(x) for x in item["inputs"]) + ")")
+        event_topic(
+            item["name"] + "(" + ",".join(abi_type(x) for x in item["inputs"]) + ")"
+        )
     ]
     data = b""
     require(set(values) == {x["name"] for x in item["inputs"]}, "event fields")
@@ -163,7 +171,7 @@ def validate(trace, manifest):
         touched = set()
         opened_here = set()
         allocated_here = set()
-        for index, log in enumerate(receipt["logs"]):
+        for log in receipt["logs"]:
             log_index = integer(log["logIndex"], 0, 2**64 - 1)
             require(log_index > block_log_indices.get(number, -1), "log order")
             block_log_indices[number] = log_index

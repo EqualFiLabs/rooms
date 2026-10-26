@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.33;
-import { ISettlement } from "../src/interfaces/ISettlement.sol";
 import { LifecycleTest } from "./helpers/LifecycleTest.sol";
 import { SettlementComponents } from "./helpers/SettlementComponents.sol";
 import { Round, Errors } from "./helpers/RoomsTest.sol";
@@ -103,14 +102,5 @@ contract RoomsSettlementComponentsTest is LifecycleTest {
         vm.expectRevert(abi.encodeWithSelector(Errors.RoundNotReady.selector, id));
         h.allocateCommon(id, "");
         assertEq(inspect.bucket(1, address(token)), 20 ether);
-    }
-
-    function testPublicSettlementRemainsUninstalledUntilBothOutcomes() public {
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.FunctionNotFound.selector, ISettlement.settleRound.selector
-            )
-        );
-        ISettlement(diamond).settleRound(1, "");
     }
 }

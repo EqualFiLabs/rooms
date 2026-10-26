@@ -2,12 +2,37 @@ import contextlib
 import io
 import json
 import subprocess
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
-from tools.rehearse import failure_details, main
+from tools.rehearse import failure_details, main, run, SUITES
 
 
 class RehearsalDiagnosticsTest(unittest.TestCase):
+    def test_local_report_preserves_the_manifest_source_state(self):
+        suites = {
+            name: {"test_results": {"testFixture()": {"status": "Success"}}}
+            for name in SUITES
+        }
+        for dirty in (True, False):
+            with self.subTest(dirty=dirty), TemporaryDirectory() as directory:
+                root = Path(directory)
+                manifest = {"sourceCommit": "fixture-commit", "sourceDirty": dirty}
+                with patch("tools.rehearse.ROOT", root), patch(
+                    "tools.rehearse.build", return_value=manifest
+                ), patch(
+                    "tools.rehearse.subprocess.run",
+                    return_value=SimpleNamespace(stdout=json.dumps(suites)),
+                ):
+                    report = run()
+                self.assertIs(report["sourceDirty"], dirty)
+                self.assertEqual(report["sourceCommit"], manifest["sourceCommit"])
+                self.assertEqual(
+                    json.loads((root / "candidate-manifest.json").read_text()), manifest
+                )
+
     def test_compiler_diagnostics_accept_bytes_and_remain_bounded(self):
         error = subprocess.CalledProcessError(
             1,

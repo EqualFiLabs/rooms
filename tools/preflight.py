@@ -51,6 +51,7 @@ def hash32(value):
 
 def validate(plan, manifest, observed):
     require(plan["schema"] == 1 and observed["schema"] == 1, "schema")
+    require(manifest.get("sourceDirty") is False, "committed clean candidate required")
     require(plan["chainId"] == observed["block"]["chainId"] == 46630, "chain")
     integer(observed["block"]["number"], 1, 2**64 - 1)
     hash32(observed["block"]["hash"])
