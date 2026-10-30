@@ -147,40 +147,40 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
     - Details: Full suite, extended fuzz/invariant campaigns, static analysis, formatting/build checks, and deterministic dependency/runtime manifests. Use focused local checks while iterating. Measure actual purchase/settlement/claim/expiry/Router gas for 2/8/24 rooms and supported assets; do not publish remembered gas/dollar estimates or claim every configured reward pays gas. Exercise new paths directly; tests alone are not full runtime evidence.
     - _Requirements: 5.5, 8.8, 19.6, 21.6–21.7, 22.1–22.3, 22.6_
 
-- [ ] 13. Checkpoint - Reconcile the complete candidate and evidence boundaries
+- [x] 13. Checkpoint - Reconcile the complete candidate and evidence boundaries
   - Details: Ensure all applicable CI-owned gates pass for the committed candidate when publication is authorized; run the actual local changed lifecycle and record what it proves. Review every acceptance criterion against design/tests without weakening inconvenient behavior. Separate mocked, real-contract local, fork, formal, and live claims. Resolve any missing requirements before calling the candidate complete.
   - _Requirements: 1.1–22.8_
 
-- [ ] 14. Complete bounded formal work and independent review before release
-  - [ ] 14.1 Define meaningful proof targets and execute only in the approved remote environment.
+- [x] 14. Complete bounded formal work and independent review before release
+  - [x] 14.1 Define meaningful proof targets and execute only in the approved remote environment.
     - Local-only implementation-stage artifacts: formal harnesses, proof specifications, and durable raw outputs outside version control; only an appropriate high-level summary belongs in version control.
     - Details: Epoch-price and supply bounds, same-epoch purchase partition neutrality, allocation conservation from actual receipts, positive treasury, prescribed one-shot sellout selection, populated/empty rollover, pending attachment, one-shot claims/expiry, per-asset non-mutation, and initialization/finalization boundaries. Bind proof inputs to actual source, compiler/settings, runtime hashes, documented token/Registry/Router models, explicit bounds, and sanity witnesses. Do not probe or invoke local Halmos/Certora, or claim timeout/unknown/vacuity as a pass. Read the current approved execution instructions before starting remote work.
     - _Requirements: 8.6, 9.1–9.8, 10.1–10.7, 12.1–12.7, 16.1–16.7, 18.1–18.8, 21.6–21.7, 22.3–22.4, 22.6_
-  - [ ] 14.2 Review the committed candidate and remediate confirmed issues.
+  - [x] 14.2 Review the committed candidate and remediate confirmed issues.
     - Details: Independent review of Diamond selectors/storage, initialization/authority, randomness assumptions, ERC-20 admission, aggregate accounting, claim expiry, rollover, Router contribution, surplus, and pause semantics. Keep internal reports/findings outside version control; apply concrete fixes in narrow candidate changes, update specs, and repeat affected evidence before release. Label agent review separately from third-party assurance.
     - _Requirements: 1.1–1.6, 3.1–3.8, 6.1–6.7, 7.1–20.5, 21.5–21.7, 22.1–22.6_
 
-- [ ] 15. Prepare a Robinhood Testnet rehearsal without live execution
-  - [ ] 15.1 Write deployment and read-only provenance validators.
+- [x] 15. Prepare a Robinhood Testnet rehearsal without live execution
+  - [x] 15.1 Write deployment and read-only provenance validators.
     - New implementation-stage files: `script/DeployRooms.s.sol`, lifecycle helpers, validators, and public-safe deployment manifests.
     - Details: Guard chain ID 46630 for the rehearsal, validate official current chain configuration and actual dependency code/identity, installed authority/timelock roles, approved assets, Router readiness, Registry target-client behavior, compiled bytecode and selector/layout manifests. Load private runtime configuration only from approved secret storage without logging it. No guessed addresses, credentials, hostnames, local paths, or raw private evidence in public materials.
     - _Requirements: 1.6, 3.6, 6.6–6.7, 13.3, 16.1, 16.6, 17.1–17.5, 21.5–21.7, 22.5–22.6, 22.8_
-  - [ ] 15.2 Provide runnable rehearsal orchestration and exercise it locally without signing.
+  - [x] 15.2 Provide runnable rehearsal orchestration and exercise it locally without signing.
     - Details: Exercise local orchestration and prepare the future live sequence; mark live signing, broadcasting and finalization unexecuted. A later separately authorized rehearsal uses a fresh Rooms Diamond, actual epoch-priced approved-token transfers, verified Registry and Router, concurrent configurations/assets, early sellout and unsold deadline cutoff, selected actual future Quicknet proof and cached reuse, successful claims and revenues, a failed delivery followed by retry, and progressive finalization on disposable testnet state. Observe original/selected targets and effective closes; only the prescribed exact-fill sellout may select its future target. Obtain/observe empty-room rollover honestly without outcome-driven target changes; deterministic local tests provide branch coverage if a live outcome is not obtained. Do not change or reuse a finalized Fiddy deployment as Rooms.
     - _Requirements: 1.2–1.4, 4.1–4.7, 6.1–6.7, 7.1–7.8, 9.1–9.8, 11.1–11.7, 13.1–17.5, 21.7, 22.2, 22.5–22.8_
-  - [ ] 15.3 Validate receipt/event/accounting evidence against explicit fixtures.
+  - [x] 15.3 Validate receipt/event/accounting evidence against explicit fixtures.
     - Details: Provide evidence validators exercised against fixtures; live evidence remains prepared but unexecuted. Reconcile receipts, events, target beacon, runtime hashes, configuration/integration versions, source ledgers, and balances for the exact candidate. Fixed 30-day expiry is proven locally with controlled time; a same-day rehearsal is not a live 30-day observation. Any later actual live expiry result is separate evidence. Do not shorten the constant or upgrade the clock rule to manufacture coverage.
     - _Requirements: 2.8, 12.1–12.7, 18.1–18.8, 21.7, 22.2–22.6_
 
-- [ ] 16. Document operation and prepare the reviewable release handoff
-  - [ ] 16.1 Synchronize specifications and publishable protocol documentation.
+- [x] 16. Document operation and prepare the reviewable release handoff
+  - [x] 16.1 Synchronize specifications and publishable protocol documentation.
     - Modified files: these three root documents; new implementation-stage accounting/randomness/governance/asset-policy/operator-integration/rehearsal documentation where required.
     - Details: Record final interfaces, storage/selector manifests, base prices and ticket supplies, four epoch price multipliers and rounding, maximum-payment protection, equal prize weight, sellout-or-deadline rules and target selection, current launch terms, the supported-token and alias assumptions, ordinary-native rejection, donations-to-treasury, simple per-config rollover including disabled-config inactivity, 30-day forfeiture, tip denominator, permissionless callers/incentives, and versioned integrations. Explain public holdings, the late-price premium without guaranteed elimination of dilution, supply races, repeated-empty economics, sequencer risk, upgrade authority, and code-versus-governance finalization. Provide direct-call ABI/commands without requiring a new frontend or private backend.
     - _Requirements: 1.6, 2.1–2.8, 3.5–3.8, 6.6–6.7, 8.8, 9.1–9.8, 12.1–12.7, 14.1–14.8, 15.1–17.5, 19.1–19.7, 21.1–21.7, 22.1–22.6_
-  - [ ] 16.2 Deliver candidate validation and governance handoff without automatic finalization or merging.
+  - [x] 16.2 Deliver candidate validation and governance handoff without automatic finalization or merging.
     - Details: Summarize exact source/runtime/config pins, exercised checks, high-level formal-evidence summary, and remaining limits. Publish feature-branch commits or open a PR only when authorized, leaving human integration untouched. Production deployment and eventual irreversible finalization each require explicit separate authority; do not schedule either because the checklist is complete. Finalization has no forced deadline.
     - _Requirements: 16.1–16.7, 21.5–21.7, 22.1–22.8_
 
-- [ ] 17. Final checkpoint - Verify complete behavior and passing release gates
+- [x] 17. Final checkpoint - Verify complete behavior and passing release gates
   - Details: Ensure every acceptance criterion has observable implementation and appropriate passing evidence, all applicable tests/gates pass for the exact candidate, and no source/test/documentation drift remains. State unexecuted target-chain or elapsed-time evidence honestly. Hand off the reviewable result; do not merge, deploy production, or finalize without the required separate authorization.
   - _Requirements: 1.1–22.8_

@@ -4,7 +4,7 @@
 
 Rooms is one standalone custody Diamond, not a gaming framework. Configuration versions define approved ERC-20 games with 2–24 equally selectable rooms and a fixed ticket supply across all rooms. Multiple configurations can operate concurrently, but each configuration has at most one nonterminal round. A round opens with a paid entry and commits its future deadline beacon. Sales close on sellout or at the original deadline, whichever comes first; an early sellout atomically selects its own future beacon. Ticket prices increase across four time epochs at 1.00x/1.25x/1.50x/1.75x base price, while every ticket retains equal prize weight. Settlement is permissionless. A populated winning room creates per-ticket claims; an empty one leaves its pot for that configuration's next round. Actual entry receipts initially split 50% player pot, 20% Operators, and 30% treasury before the configurable settlement reward.
 
-Status: accepted implementation design accompanying [requirements.md](requirements.md) and [tasks.md](tasks.md). API and storage sketches define the implementation target; validation evidence is recorded separately as work is completed. Live deployment and signing are outside this delivery.
+Status: accepted implementation design accompanying [requirements.md](requirements.md) and [tasks.md](tasks.md). The implemented API and ordered storage records are described below; completed evidence and its limits are recorded in [validation](docs/validation.md), [acceptance](docs/acceptance.md), and [handoff](docs/handoff.md). Live deployment and signing are outside this delivery.
 
 ### Key Design Decisions
 
@@ -24,7 +24,7 @@ Status: accepted implementation design accompanying [requirements.md](requiremen
 | EqualFiLabs/fiddy | `795425ef6a8830278b56b9052aa2271e92930eb3` | `src/StaticsLotteryDiamond.sol`, `src/libraries/LibDiamond.sol`, cut/loupe facets, `LotteryInit`, `LotteryFacet`, `SettlementFacet`, `ClaimsFacet`, `RevenueFacet`, `GovernanceFacet`, `docs/accounting.md`, `docs/governance.md`, `docs/randomness.md` |
 | EqualFiLabs/drand-registry | `118a94d2e447055d1a47d1a13488e887aaa4a822` | `src/interfaces/IEqualFiDrandRegistry.sol`, `src/EqualFiDrandRegistry.sol`, `src/libraries/QuicknetVerifier.sol` |
 
-Fiddy PR #22 commits the deadline draw at opening; it no longer refunds unsold rounds at timeout. Its historical testnet rehearsal predates that change, and its current docs mark the fresh deadline-draw rehearsal as pending. Neither evidence class is Rooms validation. Fiddy's pinned registry submodule and the registry repository's current main must not be assumed identical; Rooms will pin the reviewed registry dependency explicitly.
+Fiddy PR #22 commits the deadline draw at opening; it no longer refunds unsold rounds at timeout. Its historical testnet rehearsal predates that change, and its current docs mark the fresh deadline-draw rehearsal as pending. Neither evidence class is Rooms validation. Fiddy's pinned registry submodule and the registry repository's current main must not be assumed identical; Rooms pins the separately reviewed Registry revision in [provenance](docs/provenance.md).
 
 ### Accepted economic decisions and release inputs
 
@@ -53,7 +53,7 @@ flowchart TD
 
 Facet arrows represent selector dispatch and delegatecall, not independent vaults. Facet implementation addresses do not receive deposits. Fiddy and its custody are outside this graph. The Registry and Router are external infrastructure, not Rooms accounting stores.
 
-### Proposed source organization
+### Implemented source organization
 
 ```text
 src/RoomsDiamond.sol
@@ -81,6 +81,12 @@ src/libraries/LibReentrancy.sol
 src/libraries/LibRoomsStorage.sol
 src/libraries/LibRoomsConfig.sol
 src/libraries/LibRoomsMath.sol
+src/libraries/LibRoomsOpening.sol
+src/libraries/LibRoomsPurchase.sol
+src/libraries/LibRoomsBeacon.sol
+src/libraries/LibRoomsSettlement.sol
+src/libraries/LibRoomsOutcome.sol
+src/libraries/LibRoomsAccounting.sol
 src/libraries/LibOperatorFeeRouter.sol
 src/shared/DiamondTypes.sol
 src/shared/Types.sol
@@ -137,7 +143,7 @@ No combined settle-and-open selector is necessary for this design. Separating th
 
 ## Components and Interfaces
 
-Signatures below are the proposed public contract surface. All application entrypoints operate at the Diamond address. Mutators that touch value ledgers or make external calls share the initialized guard. Authority checks are independent of the treasury-receiver identity.
+Signatures below describe the installed public contract surface. The deployment assembly contains 51 selectors across eight facets, including the cut selector; `RoomsInit.initialize` is invoked by initialization delegatecall and is not an installed selector. All application entrypoints operate at the Diamond address. Mutators that touch value ledgers or make external calls share the initialized guard. Authority checks are independent of the treasury-receiver identity.
 
 ### Diamond and initialization
 
@@ -163,14 +169,14 @@ function openRound(uint64 configVersion, uint8 room, uint256 quantity, uint256 m
 function buyTickets(uint256 roundId, uint8 room, uint256 quantity, uint256 maxPayment) external;
 ```
 
-Opening order:
+Opening executes under the shared guard in this order; every step and event rolls back on any later failure:
 
-1. Check participation pause, enabled configuration, currently approved asset, global capacity, vacant configuration slot, valid room/quantity within ticket supply and optional purchase limit, maximum payment, and Router readiness if Operator BPS is nonzero. First purchases execute in E1.
-2. Select current integration version; validate future deadline/timestamp arithmetic and the Registry-selected target.
-3. Allocate a new global ID; copy configuration/integration snapshots; set opening/deadline/target; reserve active-round capacity before any mutable token interaction.
-4. Take `R = pendingRollover[configVersion]`, clear it, subtract `R` from per-token pending rollover liability, and add `R` to escrow. Record `round.rolloverIn = R`.
-5. Record first purchase counts, actual epoch-priced receipts, and escrow. If it fills supply, perform the sellout transition and target selection below. Pull exactly the nominal purchase amount with SafeERC20. All writes revert if the supported token transfer or either necessary commitment fails.
-6. Emit opening/deadline commitment, inherited-pot, purchase, and any sellout facts.
+1. Reservation checks pause, configuration existence/enabling, current asset approval, vacant configuration slot, capacity, current integration and Router readiness when Operator BPS is nonzero. It allocates the global ID, copies snapshots, checks timestamp representability and reserves capacity.
+2. Reservation consumes the configuration's entire pending pot, moving its accounting category to active escrow and recording `rolloverIn`, then emits `RoundOpened`.
+3. Select the future uncached deadline beacon from the snapshotted Registry, store both original and selected targets, and emit `DeadlineCommitted`.
+4. The purchase component validates room, positive quantity, purchase cap, remaining supply and maximum payment. The first purchase is E1. It records counts, receipts and escrow and emits `TicketsPurchased`.
+5. An exact supply fill sets the sold-out/effective-close timestamp and selects the future uncached sellout target atomically, preserving the original target and emitting `RoundSoldOut`.
+6. Collect the nominal payment with SafeERC20. A transfer failure reverts reservation, target selections, holdings, liabilities and emitted logs. No unfunded public opening can survive the transaction.
 
 Later purchases require `status == Open && now < closesAt`, current token approval, valid room and positive quantity within remaining supply, and optional configured purchase limit. The configuration enable flag is not rechecked for an existing round. Compute the current epoch and rounded unit price below, multiply by quantity with checked arithmetic, and reject payment above `maxPayment`. Update round/room/user counts and escrow. On an exact supply fill, set `status = SoldOut`, `soldOutAt = effectiveClose = now`, and select the strictly future sellout beacon from the same Registry under the same guard before token transfer. Preserve the original deadline target. No token callback can buy more tickets or trigger a second selection. A failure reverts the entire final purchase, sale closure, and target change. Quantities above remaining supply revert rather than partially fill.
 
@@ -210,7 +216,7 @@ function expirePrize(uint256 roundId) external returns (uint256 amount);
 function claimFinalizerTips(address asset, address receiver) external returns (uint256 amount);
 ```
 
-`claimPrize`: require a settled populated-room round, `now < claimDeadline`, unconsumed caller claim, valid receiver, and positive `tickets * payoutPerTicket`. Mark consumed, subtract round `prizeRemaining` and token `prizeLiability`, then transfer. Ticket counts are retained for public history. Losers have no claim. Zero-valued entitlements need no token transfer and are rejected as `NoPrizeClaim`.
+`claimPrize`: require a settled populated-room round, `now < claimDeadline`, unconsumed caller claim, valid receiver, and positive `tickets * payoutPerTicket`. Mark consumed, subtract round `prizeRemaining` and token `prizeLiability`, then transfer. Ticket counts are retained for public history. Losers have no claim. Zero-valued entitlements need no token transfer and are rejected as `NoPrize`.
 
 `expirePrize`: require a settled populated-room round, `now >= claimDeadline`, and no prior expiry processing. Mark expiry, move exactly `prizeRemaining` from prize liability into treasury, and set the round's remaining amount to zero. This can mark a fully claimed or zero-distributable populated round expired with amount zero, but cannot create value. Empty-room rounds are not expiry candidates.
 
@@ -406,21 +412,21 @@ struct GovernanceStorage { address guardian; address treasuryRecipient; bool pau
 struct ReentrancyStorage { uint256 status; }
 ```
 
-These are proposed fresh layouts. Before implementation release, pin actual field order and compiler layout; later upgrades append fields only and review selectors/namespaces as release artifacts. Asset configuration is immutable, so each pending rollover amount has exactly one unambiguous payment token without a second asset key.
+These ordered records match `Types.sol` and `LibRoomsStorage.sol`. The candidate manifest binds namespace hashes and ordered-struct schema digests, alongside source and runtime identities. Digests are review aids rather than a storage compatibility proof; later upgrades require explicit layout and selector review and must preserve existing field order. Asset configuration is immutable, so each pending rollover amount has exactly one unambiguous payment token without a second asset key.
 
 ### Events
 
-Proposed event families, defined with typed parameters in the interfaces during implementation:
+Events are defined in governance interfaces, lifecycle libraries and facets, and included in each candidate manifest's `eventABIs`. Read the combined receipt and immutable configuration history to reconstruct economics:
 
-- `RoomsConfigCreated`, `RoomsConfigEnabled`, `AssetApprovalUpdated`, `IntegrationConfigUpdated`, `MaxActiveRoundsUpdated`.
-- `RoundOpened`: round/config/integration IDs, payment asset, base price, ticket supply, opening/deadline, original deadline target, inherited rollover.
-- `TicketsPurchased`: round, buyer, asset, room, quantity, zero-based epoch, multiplier, rounded unit price, amount, updated room and round totals, remaining supply.
-- `RoundSoldOut`: round/config/integration IDs, sellout/effective-close timestamp, original deadline target, selected sellout target, including when target values coincide. Deadline closure is derived from the published deadline and absence of sellout; settlement reports which close path applied.
-- `RoundSettled`: round/config/asset, close reason/effective close, finalizer, selected target/seed, winning room, gross receipts, own player contribution, inherited pot, distributable prize, per-ticket amount, rollover out, Operator revenue, treasury net, settlement reward, claim deadline.
-- `PrizeClaimed`, `PrizeExpired`, `FinalizerTipClaimed`, `OperatorRevenueFlushed`, `TreasuryFlushed`, `TokenSurplusAbsorbed`, `NativeSurplusFlushed` with source/destination and amounts.
-- Fiddy-style guardian, pause, treasury-recipient, cut, and protocol-finalization events.
+- `RoomsConfigCreated`, `RoomsConfigEnabled`, `AssetApprovalUpdated`, `IntegrationConfigUpdated`, `MaxActiveRoundsUpdated`, and role/pause/treasury/finalization events expose governance changes.
+- `RoundOpened` identifies round, configuration and integration versions, opening/deadline, inherited pot and supply. Resolve the immutable configuration for asset, base price and terms.
+- `DeadlineCommitted` records the original deadline target. `RoundSoldOut` records its effective-close timestamp, original target and selected target, including equal targets. Deadline closure is derived from time and absence of sellout.
+- `TicketsPurchased` records round, buyer, room, quantity, zero-based epoch, rounded unit price, payment and remaining supply. Multipliers are fixed by epoch; aggregate counts derive from these entries.
+- `RoundAllocated` records gross receipts, inheritance and the complete `Allocations` tuple: new player contribution, Operator revenue, gross treasury, tip and net treasury.
+- `RolloverCredited` records configuration/asset and amount, including zero dust. `RoundSettled` records winning room, finalizer, seed, winning count, total player pot, per-ticket amount, distributable prize and claim deadline. Together with commitment events these identify the selected draw and close path.
+- `PrizeClaimed`, `PrizeExpired`, `FinalizerTipsClaimed`, `OperatorRevenueFlushed`, `TreasuryFlushed`, `TokenSurplusAbsorbed`, and `NativeSurplusFlushed` identify liability consumption or reclassification and destinations where applicable.
 
-Do not emit redundant history requiring participant enumeration. Event serialization/helper structure may be adjusted to avoid compiler stack pressure without changing the economic facts exposed.
+No participant enumeration is required. [Receipt validation](docs/rehearsal.md) checks this combined event history, raw ABI encoding, supported-token transfers, source buckets and six-category snapshots against explicit fixtures. Supplied JSON and logs still require independent chain authentication.
 
 ## Accounting and Fund Transitions
 
@@ -616,7 +622,7 @@ Properties refer to supported asset and integration semantics and the installed 
 
 ## Error Handling
 
-Use behavior-specific custom errors, preserving Fiddy's generic Diamond errors rather than hiding them. Final names may be organized in `Errors.sol`, but the following distinctions are required:
+Behavior-specific custom errors are defined in `Errors.sol`, alongside preserved Fiddy Diamond errors. The following distinctions govern failure and retry:
 
 | Failure | Required behavior and recovery |
 |---|---|
@@ -675,26 +681,26 @@ No EqualFi-owned keeper is a correctness dependency. A UI/keeper may improve con
 
 ## Testing Strategy
 
-This is a specification validation plan, not a claim that tests already exist or passed. The accepted compiler is Solidity 0.8.33, optimizer 200 runs, Osaka, without global via-IR. This explicitly approved change from Fiddy's 0.8.30 baseline accommodates the pinned Router. Dependency revisions and preserved notices are recorded in the implementation provenance.
+The suites below are implemented. Exact completed checks and unexecuted boundaries are recorded in [validation](docs/validation.md) and [handoff](docs/handoff.md). The accepted compiler is Solidity 0.8.33, optimizer 200 runs, Osaka, without global via-IR. This explicitly approved change from Fiddy's 0.8.30 baseline accommodates the pinned Router. Dependency revisions and preserved notices are recorded in the implementation provenance.
 
-| Proposed test file/category | Consumer-visible coverage | Requirements |
+| Implemented test file/category | Consumer-visible coverage | Requirements |
 |---|---|---|
 | `test/RoomsDiamond.t.sol`, `test/RoomsInit.t.sol` | real dispatch/cuts/loupe, authority, replay, shared guard initialization, storage across upgrade/finalize, continuing operation | 1.1–1.6, 16.1–16.7, 20.1–20.5 |
 | `test/RoomsConfig.t.sol`, `test/RoomsGovernance.t.sol` | bounds 2/24 vs 1/25, non-power-of-two games, positive supply/base price, minimum duration, snapshots, enabling/removing assets/configurations, pause authority and concurrency | 2.1–2.8, 3.1–3.8, 4.1–4.7, 15.1–15.6, 17.1–17.5 |
-| `test/RoomsPurchases.t.sol`, `test/RoomsViews.t.sol` | actual approvals/transfers, all epoch boundaries including non-divisible durations, rounded unit pricing/quotes, max-payment protection, partition neutrality, supply races/overbuy, first-purchase sellout, sellout target/transfer failure rollback, no post-sellout buys, strict deadline equality, inherited-pot rollback | 2.2, 2.7, 4.1–4.7, 5.1–5.7, 6.1–6.7, 9.2, 19.2–19.5, 20.1–20.5 |
-| `test/RoomsSettlement.t.sol`, `test/RoomsRollover.t.sol` | sellout settlement before original deadline, unsold mixed-epoch actual receipts, selected target only/no fallback, equal original/sellout targets, late cached proof, invalid proof rollback, independent configurations, one-ticket round, empty/repeated-empty/winner transitions, fee-free inheritance, aggregate consistency | 6.1–6.7, 7.1–7.8, 8.1–8.8, 9.1–9.8, 17.1–17.5 |
+| `test/RoomsPurchases.t.sol`, `test/RoomsViews.t.sol`, `test/RoomsOpening.t.sol`, `test/RoomsOpeningIntegration.t.sol`, `test/RoomsCommitments.t.sol` | actual approvals/transfers, all epoch boundaries including non-divisible durations, rounded unit pricing/quotes, max-payment protection, partition neutrality, supply races/overbuy, first-purchase sellout, sellout target/transfer failure rollback, no post-sellout buys, strict deadline equality, inherited-pot rollback | 2.2, 2.7, 4.1–4.7, 5.1–5.7, 6.1–6.7, 9.2, 19.2–19.5, 20.1–20.5 |
+| `test/RoomsSettlement.t.sol`, `test/RoomsRollover.t.sol`, `test/RoomsSettlementComponents.t.sol`, `test/RoomsCommitments.t.sol` | sellout settlement before original deadline, unsold mixed-epoch actual receipts, selected target only/no fallback, equal original/sellout targets, late cached proof, invalid proof rollback, independent configurations, one-ticket round, empty/repeated-empty/winner transitions, fee-free inheritance, aggregate consistency | 6.1–6.7, 7.1–7.8, 8.1–8.8, 9.1–9.8, 17.1–17.5 |
 | `test/RoomsClaims.t.sol`, `test/RoomsExpiry.t.sol` | split/merged wallets, equal-ticket equal payouts across epochs, claim order, dust, zero-unit edge, repeat/reverting claims, fixed 30-day boundary, lazy expiry/surplus safety, repeat expiry, no expiry of rollover/other liabilities | 5.7, 10.1–10.7, 11.1–11.7, 12.1–12.7, 14.4, 20.1–20.5 |
-| `test/RoomsRevenue.t.sol` | real Router contribution/retry, finite allowances, old-version buckets, donation absorption, unknown facade rejection, removed-known assets, forced ETH, treasury receiver failures | 3.4, 13.1–13.7, 14.1–14.8, 17.1–17.5 |
-| `test/RoomsEndToEnd.t.sol` | full supported ERC-20 lifecycle through the actual Diamond, concurrent assets/configs, rollover-to-winning successor, claim/expiry, Operator/finalizer/treasury delivery, pause/finalization | 1.1–1.6, 4.1–4.7, 7.1–7.8, 9.1–9.8, 11.1–14.8, 15.1–16.7, 22.2 |
+| `test/RoomsOperatorRevenue.t.sol`, `test/RoomsTreasury.t.sol`, `test/RoomsNative.t.sol` | controlled-Router contribution/retry, finite allowances, old-version buckets, donation absorption, unknown facade rejection, removed-known assets, forced ETH, treasury receiver failures | 3.4, 13.1–13.7, 14.1–14.8, 17.1–17.5 |
+| `test/RoomsEndToEnd.t.sol`, `test/RoomsOpeningIntegration.t.sol`, `test/RoomsSettlementIntegration.t.sol` | real Quicknet vector and Router/Operator delivery in EndToEnd; concurrent assets/configurations and both cutoffs in OpeningIntegration; repeated rollover, populated successor, partial claim/expiry and continued finalized operation in SettlementIntegration | 1.1–1.6, 4.1–4.7, 7.1–7.8, 9.1–9.8, 11.1–14.8, 15.1–16.7, 22.2 |
 | `test/RoomsInvariant.t.sol` | stateful reference ledgers, conservation/solvency/isolated assets, supply bounds, epoch-priced receipts, pointer capacity including sold-out rounds, snapshots/original target, prescribed one-shot selection, no-double transitions, donations and time progression | 2.7, 5.1–5.7, 6.1–6.7, 18.1–18.8, 20.1–20.5, 22.3 |
-| Pure math fuzz and remote formal harnesses | epoch/unit-price boundaries, same-epoch payment partition neutrality, equal prize weight, full-width allocation, integer-rounding partitions, positive treasury, exact Sybil neutrality, rollover/claim/expiry transitions under explicit assumptions | 5.1–5.7, 8.1–8.8, 10.1–10.7, 12.1–12.7, 18.1–18.8, 22.3–22.4 |
-| Fresh authorized target-chain rehearsal | real future Quicknet beacons for early sellout and unsold deadline, epoch-priced transfers, actual Registry/Router, deployed runtime/selector match, winning/empty outcomes, real deliveries, progressive finalization | 5.1–5.7, 6.1–6.7, 7.1–7.8, 13.1–13.7, 16.1–16.7, 22.5–22.6 |
+| `test/RoomsMath.t.sol` and private bounded remote formal work | epoch/unit-price boundaries, same-epoch payment partition neutrality, equal prize weight, full-width allocation, integer-rounding partitions, positive treasury, exact Sybil neutrality, rollover/claim/expiry transitions under explicit assumptions | 5.1–5.7, 8.1–8.8, 10.1–10.7, 12.1–12.7, 18.1–18.8, 22.3–22.4 |
+| Prepared, unexecuted target-chain rehearsal | real future Quicknet beacons for early sellout and unsold deadline, epoch-priced transfers, actual Registry/Router, deployed runtime/selector match, winning/empty outcomes, real deliveries, progressive finalization | 5.1–5.7, 6.1–6.7, 7.1–7.8, 13.1–13.7, 16.1–16.7, 22.5–22.6 |
 
 A deterministic mock Registry can exercise both room outcomes and branch errors; official vectors/real Registry execution must separately establish integration. A local mock must not be described as live drand validation. The actual empty-room outcome on a live rehearsal cannot be assumed in advance: configurations/holdings must be fixed before their selected beacons, and observed outcomes reported honestly. Only the prescribed exact-fill sellout may select its future target; never change a target to manufacture a demonstration or choose a known outcome.
 
 For the fixed 30-day expiry, use local time-controlled integration and stateful tests; a same-day live rehearsal cannot establish a real 30-day wait. Record any later live expiry observation separately without shortening the production constant or using an upgrade to fake it.
 
-Focused local commands will follow the implemented file names, for example `forge test --match-path test/RoomsRollover.t.sol`. Broad CI gates cover the complete suite, extended fuzz/invariant profile, and static analysis. Formal tools run only in the approved remote verification environment, never locally, and their exact source/bytecode/compiler/model/bounds/status evidence is stored privately with appropriate public summaries. Internal audits, machine details, credentials, and raw verification artifacts do not belong in this repository.
+Focused local commands use the implemented file names, for example `forge test --match-path test/RoomsRollover.t.sol`. Broad CI gates cover the complete suite, extended fuzz/invariant profile, and static analysis. Formal tools run only in the approved remote verification environment, never locally, and their exact source/bytecode/compiler/model/bounds/status evidence is stored privately with appropriate public summaries. Internal audits, machine details, credentials, and raw verification artifacts do not belong in this repository.
 
 ### Requirement coverage map
 

@@ -21,8 +21,9 @@ jobs:
       - run: forge test
         env:
           FOUNDRY_PROFILE: ci
-      - run: forge lint src --severity high -D warnings
+      - run: forge lint src script --severity high -D warnings
       - run: python3 tools/build_manifest.py candidate-manifest.json
+      - run: python3 -m unittest discover -s tools/tests -v
       - uses: actions/upload-artifact@v4
         with:
           name: candidate-manifest

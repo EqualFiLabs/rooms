@@ -3,6 +3,7 @@ pragma solidity 0.8.33;
 import { IRoomsView } from "../interfaces/IRoomsView.sol";
 import { LibRoomsStorage as S } from "../libraries/LibRoomsStorage.sol";
 import { LibRoomsMath as M } from "../libraries/LibRoomsMath.sol";
+import { LibRoomsPurchase } from "../libraries/LibRoomsPurchase.sol";
 import { LibRoomsAccounting as A } from "../libraries/LibRoomsAccounting.sol";
 import {
     RoomsConfig,
@@ -119,16 +120,8 @@ contract RoomsViewFacet is IRoomsView {
         if (r.status != RoundStatus.Open || block.timestamp >= r.closesAt) {
             revert Errors.RoundNotOpen(id);
         }
-        if (quantity == 0) revert Errors.InvalidTicketQuantity();
-        if (r.config.maxTicketsPerPurchase != 0 && quantity > r.config.maxTicketsPerPurchase) {
-            revert Errors.TicketLimitExceeded();
-        }
-        remaining = r.config.ticketSupply - r.totalTickets;
-        if (quantity > remaining) revert Errors.InsufficientSupply(quantity, remaining);
-        e = M.epoch(block.timestamp - r.openedAt, r.config.salesDuration);
+        (e, unit, payment, remaining) = LibRoomsPurchase.quote(r, quantity);
         multiplierBps = M.multiplier(e);
-        unit = M.unitPrice(r.config.baseTicketPrice, e);
-        payment = unit * quantity;
     }
 
     function previewRoomPayout(uint256 id, uint8 room, uint256 additionalTickets)

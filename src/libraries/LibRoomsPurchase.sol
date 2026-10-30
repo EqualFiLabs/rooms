@@ -36,15 +36,10 @@ library LibRoomsPurchase {
             revert Errors.AssetNotApproved(r.config.paymentToken);
         }
         if (room >= r.config.roomCount) revert Errors.InvalidRoom(room);
-        if (quantity == 0) revert Errors.InvalidTicketQuantity();
-        if (r.config.maxTicketsPerPurchase != 0 && quantity > r.config.maxTicketsPerPurchase) {
-            revert Errors.TicketLimitExceeded();
-        }
-        uint256 remaining = r.config.ticketSupply - r.totalTickets;
-        if (quantity > remaining) revert Errors.InsufficientSupply(quantity, remaining);
-        uint8 e = M.epoch(block.timestamp - r.openedAt, r.config.salesDuration);
-        uint256 unit = M.unitPrice(r.config.baseTicketPrice, e);
-        payment = unit * quantity;
+        uint8 e;
+        uint256 unit;
+        uint256 remaining;
+        (e, unit, payment, remaining) = quote(r, quantity);
         if (payment > maximum) revert Errors.MaximumPaymentExceeded(payment, maximum);
         r.totalTickets += quantity;
         r.receipts += payment;
@@ -54,6 +49,23 @@ library LibRoomsPurchase {
         emit TicketsPurchased(
             id, msg.sender, room, quantity, e, unit, payment, remaining - quantity
         );
+    }
+
+    /// @dev The caller validates that sales are open; quotes remain available during a pause.
+    function quote(Round storage r, uint256 quantity)
+        internal
+        view
+        returns (uint8 e, uint256 unit, uint256 payment, uint256 remaining)
+    {
+        if (quantity == 0) revert Errors.InvalidTicketQuantity();
+        if (r.config.maxTicketsPerPurchase != 0 && quantity > r.config.maxTicketsPerPurchase) {
+            revert Errors.TicketLimitExceeded();
+        }
+        remaining = r.config.ticketSupply - r.totalTickets;
+        if (quantity > remaining) revert Errors.InsufficientSupply(quantity, remaining);
+        e = M.epoch(block.timestamp - r.openedAt, r.config.salesDuration);
+        unit = M.unitPrice(r.config.baseTicketPrice, e);
+        payment = unit * quantity;
     }
 
     function collect(uint256 id, uint256 payment) internal {

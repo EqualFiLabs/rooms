@@ -23,8 +23,4 @@ library LibReentrancy {
     function exit() internal {
         LibRoomsStorage.reentrancyStorage().status = NOT_ENTERED;
     }
-
-    function entered() internal view returns (bool) {
-        return LibRoomsStorage.reentrancyStorage().status == ENTERED;
-    }
 }
