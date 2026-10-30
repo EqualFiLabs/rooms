@@ -22,3 +22,9 @@ Allocation properties exercise full-width receipts, complement treasury, treasur
 ## Complete settlement assembly
 
 The public settlement facet combines selected-beacon acquisition, common allocation and exactly one complete outcome. Actual-Diamond scenarios reconcile all six obligation categories against token balances after empty outcomes, populated successors, dust-only payouts and mixed-epoch deadline draws. Repeated empty component scenarios establish same-configuration attachment and independent asset/configuration pots; public scenarios also generate empty rollover and consume it at the next paid opening. Player claims and expiry are introduced separately. Controlled randomness is deterministic local branch coverage, not live-beacon evidence.
+
+## Settlement and claims acceptance checkpoint
+
+Funded public-Diamond scenarios generate repeated empty outcomes, attach inherited funds to a populated successor, partially claim and expire at the fixed boundary, then open another round. A separate reference calculation derives escrow, initial distributable prizes less payouts/expiry, configuration pots, finalizer credits, integration buckets and treasury allocations from round records and observed deliveries. It compares every source aggregate and all six categories against custody balances after each transition, including lazy expiry. Concurrent configurations settle in reverse order without sharing pots. A complete paid lifecycle and subsequent opening also execute after irreversible selector finalization.
+
+These tests use controlled local time and deterministic Registry fixtures. They establish accounting and state transitions, not real BLS verification, elapsed live time, external Router delivery or target-chain execution.
