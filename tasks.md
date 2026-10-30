@@ -109,26 +109,26 @@ Delivery uses one PR per parent task 1–16 and commits per subtask. Task 17 is 
   - Details: Run focused settlement/rollover/claims/expiry arithmetic and lifecycle tests. Execute a full local funded round, a deterministic empty-room successor chain, a populated successor with inherited pot, and a partially claimed round expired at the true fixed boundary. Reconcile every source ledger and account category. This is local execution, not live beacon or elapsed-live-time evidence.
   - _Requirements: 7.1–12.7, 18.1–18.8, 20.1–20.5, 22.2–22.3_
 
-- [ ] 10. Implement Operator and treasury delivery, donation reconciliation, and forced-native recovery
-  - [ ] 10.1 Add snapshotted Router contributions and retry semantics.
+- [x] 10. Implement Operator and treasury delivery, donation reconciliation, and forced-native recovery
+  - [x] 10.1 Add snapshotted Router contributions and retry semantics.
     - New files: `src/interfaces/IRevenue.sol`, `src/interfaces/IOperatorFeeRouter.sol`, `src/libraries/LibOperatorFeeRouter.sol`, `src/facets/RevenueFacet.sol`, `test/RoomsRevenue.t.sol`.
-    - Details: Preserve Fiddy readiness and exact-sized-then-zero allowance pattern, no transfer-delta accommodation. Integrate the actual Router implementation in local integration tests; use failing mocks only for narrow branches. Prove failed funding preserves the version/token bucket, later successful funding uses the same asset, and current integration changes cannot reroute the bucket.
+    - Details: Preserve Fiddy readiness and exact-sized-then-zero allowance pattern, no transfer-delta accommodation. Exercise controlled Router fixtures here; integrate the actual Router implementation in task 12.1. Prove failed funding preserves the version/token bucket, later successful funding uses the same asset, and current integration changes cannot reroute the bucket.
     - _Requirements: 3.4–3.7, 13.1–13.7, 17.1–17.5, 18.1–18.8, 20.1–20.5_
-  - [ ] 10.2 Add treasury delivery and safe supported-token surplus absorption.
+  - [x] 10.2 Add treasury delivery and safe supported-token surplus absorption.
     - Modified files: RevenueFacet and revenue integration tests.
     - Details: Permissionless, amount-capped delivery only to configured receiver; all obligation categories included in surplus; known-asset checks before balance queries. Exercise direct donations, repeated absorption, expired-but-unprocessed prizes, pending/attached rollover, old finalizer/Operator credits, removed-known assets, unknown token facades, and reverting receiver retry. Do not add arbitrary unknown-token recovery or deposit-triggered fees on donations.
     - _Requirements: 3.4, 3.6, 3.8, 9.4, 12.4, 12.7, 14.1–14.5, 14.8, 18.1–18.8, 20.1–20.5_
-  - [ ] 10.3 Confirm ordinary-native rejection and forced-native treasury delivery.
+  - [x] 10.3 Confirm ordinary-native rejection and forced-native treasury delivery.
     - Modified files: shell/native branch and revenue tests; disposable force-send helper only in tests.
     - Details: Both receive and value-bearing fallback revert. Force native value using a purpose-built local helper and prove treasury-only recovery with no ERC-20 ledger change; preserve balance on failed native delivery. No wrapper, native entrypoint, or ordinary donation receive path.
     - _Requirements: 14.6–14.8, 18.7–18.8, 20.1–20.5_
 
-- [ ] 11. Implement public economic views and reconstruction events
-  - [ ] 11.1 Add bounded occupancy, entitlements, state, and accounting views.
+- [x] 11. Implement public economic views and reconstruction events
+  - [x] 11.1 Add bounded occupancy, entitlements, state, and accounting views.
     - New files: `src/interfaces/IRoomsView.sol`, `src/facets/RoomsViewFacet.sol`, `test/RoomsViews.t.sol`.
     - Details: All proposed views in design.md, including derived Locked and stored SoldOut phases, base/epoch prices, multiplier, supply/remaining tickets, purchase quotes, original/selected targets, sellout/effective close, active pointers, old/new approval status, source liabilities, pending pot, claim deadline, current/expired/consumed entitlement, exact room/user totals, and balance versus accounted total. Preserve user ticket history after claims. No privileged API, wallet-only reads, or participant enumeration.
     - _Requirements: 3.4, 4.6, 10.7, 12.2, 14.2–14.4, 15.6, 19.1–19.3, 19.6–19.7_
-  - [ ] 11.2 Add conditional payout previews and economically reconstructable events.
+  - [x] 11.2 Add conditional payout previews and economically reconstructable events.
     - Modified files: interfaces/facets and view/lifecycle tests.
     - Details: Preview includes the hypothetical current-epoch payment in gross and ticket quantity in room totals, not inherited rollover as fee base. Reject positive proposed additions after either cutoff or above supply/quantity limit; permit zero-addition existing-pot previews while unsettled. Emit epoch/unit price/payment, remaining supply, close reason, and original/selected beacon facts from design.md without one event per individual ticket. Test quote/preview boundaries against actual purchases, execution in a later epoch with maximum-payment protection, and equal settled entitlements for equal ticket holdings bought in different epochs; do not add tests that merely assert getters echo storage or event wiring matches source text.
     - _Requirements: 5.6, 8.1–8.8, 9.1–9.5, 19.4–19.7, 21.1–21.4, 22.2_

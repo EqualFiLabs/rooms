@@ -273,6 +273,7 @@ function userRoomTicketCount(uint256 roundId, uint8 room, address user) external
 function prizeClaimed(uint256 roundId, address user) external view returns (bool);
 function claimablePrize(uint256 roundId, address user) external view returns (uint256);
 function finalizerCredit(address asset, address user) external view returns (uint256);
+function pendingOperatorRevenue(uint64 integrationVersion, address asset) external view returns (uint256);
 function assetAccounting(address asset) external view returns (AssetAccounting memory);
 function assetBalanceAndAccounted(address asset) external view returns (uint256 balance, uint256 accounted);
 function isAssetApproved(address asset) external view returns (bool);
@@ -287,7 +288,7 @@ function previewRoomPayout(uint256 roundId, uint8 room, uint256 additionalTicket
     external view returns (uint256 projectedPot, uint256 projectedRoomTickets, uint256 projectedPayoutPerTicket);
 ```
 
-`claimablePrize` is zero when absent, unsettled, expired, or already claimed. Occupancy does not change when prizes are claimed. `round` exposes snapshotted supply, deadline, both targets, and sellout/effective-close timestamps. `quotePurchase` requires open sales and a positive quantity within remaining supply and any per-purchase limit; it exposes the current zero-based epoch, fixed multiplier, rounded unit price, payment, and supply remaining before that proposed purchase. It does not reserve inventory or bypass purchase admission checks.
+`claimablePrize` is zero when absent, unsettled, expired, or already claimed. Occupancy does not change when prizes are claimed. `round` exposes snapshotted supply, deadline, both targets, and sellout/effective-close timestamps. `quotePurchase` requires open sales and a positive quantity within remaining supply and any per-purchase limit; it exposes the current zero-based epoch, fixed multiplier, rounded unit price, payment, and supply remaining before that proposed purchase. It reports price and supply independently of pause and asset approval; callers must also inspect those admission flags. It does not reserve inventory or bypass purchase admission checks. Raw record and count reads return zero/default values for absent identifiers; operations and quotes reject absent rounds.
 
 Preview accepts only an unsettled existing round and valid room. A positive proposed addition requires open sales and a quantity within supply and the purchase limit, and uses the same epoch-priced payment as a purchase quote. Its arithmetic adds that payment to actual receipts and those tickets to room/round totals. Zero-addition previews may report existing conditional payouts after either sales cutoff. A zero-room total produces a zero conditional per-ticket amount rather than dividing by zero. These are timestamp-sensitive estimates, not a price lock or promise of winning. After settlement use the recorded payout/entitlement instead. No current price for closed sales should be presented as purchasable.
 
