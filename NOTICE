@@ -1,5 +1,0 @@
-Rooms includes Diamond infrastructure derived from EqualFiLabs/fiddy at
-795425ef6a8830278b56b9052aa2271e92930eb3. Copied Solidity retains its
-BUSL-1.1 identifier. Dependency licenses and notices remain applicable.
-See docs/provenance.md for exact source revisions and publication boundaries.
-No permissive relicensing of upstream material is asserted.

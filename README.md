@@ -24,7 +24,6 @@ For a local rehearsal without signing, run `python3 tools/rehearse.py --output r
 
 ## Specification and evidence
 
-- [Requirements](requirements.md), [design](design.md), and [completed task slices](tasks.md)
 - [Protocol operation and direct-call commands](docs/protocol.md)
 - [Configuration and authority policy](docs/configuration.md), [source and licensing provenance](docs/provenance.md)
 - [Acceptance map](docs/acceptance.md), [local validation](docs/validation.md), [bounded formal evidence](docs/formal-summary.md), and [measured gas](docs/gas.md)

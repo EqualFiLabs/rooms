@@ -7,3 +7,7 @@ test/generated/
 candidate-manifest.json
 __pycache__/
 rehearsal-result.json
+/NOTICE
+/requirements.md
+/design.md
+/tasks.md
