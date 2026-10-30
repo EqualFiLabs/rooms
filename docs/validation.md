@@ -30,3 +30,11 @@ Funded public-Diamond scenarios generate repeated empty outcomes, attach inherit
 These tests use controlled local time and deterministic Registry fixtures. They establish accounting and state transitions, not real BLS verification, elapsed live time, external Router delivery or target-chain execution.
 
 The public-view slice compares epoch quotes with actual token payments, checks maximum-payment rejection after an epoch change, and compares conditional previews with settled equal-weight entitlements. A log-based reconstruction independently totals purchased receipts, allocation categories, and payout dust. Closed rounds expose no purchasable quote; zero-addition unsettled previews remain available.
+
+## Complete local validation
+
+`python3 tools/prepare_registry.py` prepares pragma-only test Registry sources. CI runs formatting, size-aware compilation, the complete suite (1,024 fuzz runs; 256 invariant sequences at depth 64, unexpected handler reverts failing), high-severity Foundry static lint, and a deterministic candidate manifest. The manifest binds compiler settings, dependency revisions, source hashes, selectors and compiled runtime hashes; it is a downloadable CI artifact, not a live deployment manifest.
+
+The stateful handler uses real Diamond dispatch and supported-token transfers with a controlled Registry/Router. It interleaves two assets, three configurations, versioned integrations, admission changes, time, purchases, settlement, claims, expiry, donations and deliveries. A transaction-fed reference model checks gross receipts, holdings, immutable snapshots and targets, status progression, capacity, same-configuration pots, every source ledger and both token balances. A deterministic lifecycle witness exercises meaningful transitions even when randomized sequences skip ineligible actions. Focused failure/retry, reentrancy and splitting properties remain in the unit and integration suites.
+
+High-severity lint exceptions are restricted to two annotated statements: authority-authorized initialization delegatecall (explicit upgrade power), and forced-native delivery to the stored authority-configured treasury. Remaining high-severity diagnostics fail CI. Other lint severities remain advisory and do not represent a security guarantee. [Measured local gas](gas.md) records concrete workloads and their limits.

@@ -76,6 +76,8 @@ contract RevenueFacet is IRevenue, Guarded {
         address receiver = S.governanceStorage().treasuryRecipient;
         if (receiver == address(0) || receiver == address(this)) revert Errors.InvalidAddress();
         emit NativeSurplusFlushed(receiver, amount);
+        // Destination comes only from authority-controlled treasury storage, never from the caller.
+        // forge-lint: disable-next-line(arbitrary-send-eth)
         (bool ok,) = receiver.call{ value: amount }("");
         if (!ok) revert Errors.NativeTransferFailed();
     }

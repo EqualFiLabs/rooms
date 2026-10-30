@@ -3,3 +3,5 @@ cache/
 broadcast/
 coverage/
 .env
+test/generated/
+candidate-manifest.json
