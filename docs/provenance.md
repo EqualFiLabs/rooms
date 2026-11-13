@@ -1,10 +1,12 @@
 # Source and licensing provenance
 
+Bonanza is the current product name. Historical Fiddy names and pinned revisions below identify the original evidence and are retained for provenance.
+
 The reviewed sources are immutable Git revisions, not floating branch names.
 
 | Source | Revision | Use |
 | --- | --- | --- |
-| EqualFiLabs/fiddy | `795425ef6a8830278b56b9052aa2271e92930eb3` | Diamond infrastructure and operating reference |
+| EqualFiLabs/bonanza | `795425ef6a8830278b56b9052aa2271e92930eb3` | Diamond infrastructure and operating reference |
 | EqualFiLabs/drand-registry | `118a94d2e447055d1a47d1a13488e887aaa4a822` | Registry consumer interface and real-verifier validation |
 | EqualFiLabs/operator-fee-router | `a6afe541c6261f1febb2eaf0f4d68ef5aa16548e` | Router consumer interface and integration validation |
 | OpenZeppelin/openzeppelin-contracts | `5fd1781b1454fd1ef8e722282f86f9293cacf256` | ERC-20 safety and full-precision arithmetic |
