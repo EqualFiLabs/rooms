@@ -1,5 +1,7 @@
 # Candidate acceptance and evidence map
 
+Bonanza is the current product name. Historical Fiddy names and pinned revisions below identify the original evidence and are retained for provenance.
+
 This checkpoint reconciles all numbered requirements against the cumulative source and local evidence. Ranges below include every acceptance criterion in that requirement. A passing test is evidence under its stated fixtures, not an unconditional guarantee or a target-chain rehearsal.
 
 | Criteria | Implementation and local evidence | Boundary |
